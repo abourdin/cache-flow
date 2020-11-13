@@ -1,7 +1,7 @@
 import { differenceInMilliseconds, formatDistanceStrict } from 'date-fns';
 import { LRUCache } from './delegate/lru/LRUCache';
 import { RedisCache } from './delegate/redis/RedisCache';
-import redisClientProvider from './redis/RedisClientProvider';
+import { redisClientProvider } from './redis/RedisClientProvider';
 
 /**
  * Cache class allowing to create caches with automatic cache loading and delegates.

@@ -1,7 +1,12 @@
 import { assert } from 'chai';
 import SimpleCache1 from '../examples/SimpleCache1';
+import { Cache } from '../src';
 
-describe('SimpleCache Test', () => {
+describe('BaseCache Test', () => {
+
+  after(async function () {
+    await Cache.resetAll();
+  });
 
   it('test should check basic cache functions', async () => {
     const cache1 = new SimpleCache1();

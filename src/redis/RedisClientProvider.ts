@@ -70,5 +70,4 @@ class RedisClientProvider {
   }
 }
 
-const redisClientProvider = new RedisClientProvider();
-export default redisClientProvider;
+export const redisClientProvider = new RedisClientProvider();
