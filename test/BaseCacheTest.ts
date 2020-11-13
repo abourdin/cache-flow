@@ -1,3 +1,4 @@
+import { fail } from 'assert';
 import { assert } from 'chai';
 import SimpleCache1 from '../examples/SimpleCache1';
 import { Cache } from '../src';
@@ -29,6 +30,41 @@ describe('BaseCache Test', () => {
 
     await cache1.reset();
     assert.isFalse(await cache1.exists('foo'));
+  });
+
+  it('test should get errors when giving wrong key input', async () => {
+    const cache1 = new SimpleCache1();
+    try {
+      await cache1.get(undefined);
+      fail('should have thrown an error when getting undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
+
+    try {
+      await cache1.set(undefined, 'foo');
+      fail('should have thrown an error when setting undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
+
+    try {
+      await cache1.exists(undefined);
+      fail('should have thrown an error when checking exists for undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
+
+    try {
+      await cache1.delete(undefined);
+      fail('should have thrown an error when deleting for undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
   });
 
 });

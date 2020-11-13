@@ -33,10 +33,6 @@ export abstract class Cache<K extends Object, V extends Object> {
     this.delegate = new LRUCache(cacheId, { expirationTime, maxSize });
     const redisClient = redisClientProvider.getRedisClient();
     if (redisClient) {
-      if (redisClient.connected) {
-        console.debug(`Successfully connected to Redis server, switching '${cacheId}' to Redis Cache`);
-        this.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
-      }
       const self = this;
       redisClient.on('ready', function () {
         console.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis Cache`);

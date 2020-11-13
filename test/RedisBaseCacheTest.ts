@@ -1,6 +1,7 @@
 global.process.env.REDIS_HOST = '127.0.0.1';
 global.process.env.REDIS_PORT = '6379';
 
+import { fail } from 'assert';
 import { assert } from 'chai';
 import SimpleCache1 from '../examples/SimpleCache1';
 import { Cache } from '../src';
@@ -23,7 +24,7 @@ describe('RedisBaseCache Test', () => {
   after(async function () {
     await Cache.resetAll();
 
-    redisServer.close();
+    await redisServer.close();
   });
 
   it('test should check basic cache functions over a Redis server', async function () {
@@ -53,6 +54,41 @@ describe('RedisBaseCache Test', () => {
     await cache1.reset();
     assert.isFalse(await cache1.exists('foo'));
     return;
+  });
+
+  it('test should get errors when giving wrong key input over Redis server', async () => {
+    const cache1 = new SimpleCache1();
+    try {
+      await cache1.get('test');
+      fail('should have thrown an error when getting undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
+
+    try {
+      await cache1.set(undefined, 'foo');
+      fail('should have thrown an error when setting undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
+
+    try {
+      await cache1.exists(undefined);
+      fail('should have thrown an error when checking exists for undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
+
+    try {
+      await cache1.delete(undefined);
+      fail('should have thrown an error when deleting for undefined key');
+    }
+    catch (error) {
+      // do nothing
+    }
   });
 
 });
