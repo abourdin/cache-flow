@@ -1,29 +1,30 @@
 import IORedis from 'ioredis';
 import IoRedis from 'ioredis';
-
-const REDIS_HOST = process.env.REDIS_HOST;
-const REDIS_PORT = Number.parseInt(process.env.REDIS_PORT || '6379');
+import { CacheFlow } from '../CacheFlow';
 
 class RedisClientProvider {
   private ioRedisClient: IoRedis.Redis;
 
   public getRedisClient(): IORedis.Redis {
+    const redisConfiguration = CacheFlow.getRedisConfiguration();
+    const logger = CacheFlow.getLogger();
     if (!this.ioRedisClient) {
       try {
         this.ioRedisClient = new IoRedis({
-          host: REDIS_HOST,
-          port: REDIS_PORT,
+          host: redisConfiguration.host,
+          port: redisConfiguration.port || 6379,
+          db: redisConfiguration.db || 0,
           retryStrategy: function (times: number) {
             return Math.min(times * 100, 3000);
           },
           maxRetriesPerRequest: 3
         });
         this.ioRedisClient.on('error', (error: any) => {
-          console.error('IORedis connection error: ', error);
+          logger.error('IORedis connection error: ', error);
         });
       }
       catch (error) {
-        console.error('Failed to instantiate IORedis client', error);
+        logger.error('Failed to instantiate IORedis client', error);
       }
     }
     return this.ioRedisClient;
