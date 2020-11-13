@@ -1,5 +1,7 @@
 import IORedis from 'ioredis';
 import { CacheOptions } from '../../Cache';
+import { CacheFlow } from '../../CacheFlow';
+import { LoggerInterface } from '../../config/CacheFlowConfiguration';
 import { redisClientProvider } from '../../redis/RedisClientProvider';
 
 /**
@@ -8,6 +10,7 @@ import { redisClientProvider } from '../../redis/RedisClientProvider';
 export class RedisCache {
   private readonly cacheId: string;
   private readonly maxAge: number;
+  private readonly logger: LoggerInterface;
   private redisClient: IORedis.Redis;
 
   /**
@@ -20,6 +23,7 @@ export class RedisCache {
     this.cacheId = cacheId;
     this.maxAge = expirationTime;
     this.redisClient = redisClientProvider.getRedisClient();
+    this.logger = CacheFlow.getLogger();
   }
 
   /**
@@ -41,7 +45,7 @@ export class RedisCache {
       }
     }
     catch (error) {
-      console.error(`Failed to get value from Redis cache '${this.cacheId}' for key="${fullKey}": ${error}`);
+      this.logger.error(`Failed to get value from Redis cache '${this.cacheId}' for key="${fullKey}": ${error}`);
       await this.redisClient.del(fullKey);
     }
     return value;
@@ -61,7 +65,7 @@ export class RedisCache {
       }
     }
     catch (error) {
-      console.error(`Failed to set entry in Redis cache '${this.cacheId}' for key="${fullKey}", value="${value}": ${error}`);
+      this.logger.error(`Failed to set entry in Redis cache '${this.cacheId}' for key="${fullKey}", value="${value}": ${error}`);
     }
   }
 
@@ -81,7 +85,7 @@ export class RedisCache {
       return exists === 1;
     }
     catch (error) {
-      console.error(`Failed to check existence of entry in Redis cache '${this.cacheId}' for key="${fullKey}": ${error}`);
+      this.logger.error(`Failed to check existence of entry in Redis cache '${this.cacheId}' for key="${fullKey}": ${error}`);
       return false;
     }
   }
@@ -100,7 +104,7 @@ export class RedisCache {
       await this.redisClient.del(fullKey);
     }
     catch (error) {
-      console.error(`Failed to delete entry in Redis cache '${this.cacheId}' for key '${fullKey}': ${error}`);
+      this.logger.error(`Failed to delete entry in Redis cache '${this.cacheId}' for key '${fullKey}': ${error}`);
     }
   }
 
@@ -120,7 +124,7 @@ export class RedisCache {
       });
       stream.on('end', function () {
         resolve();
-        console.info(`Redis cache '${cacheId}' has been cleared`);
+        self.logger.info(`Redis cache '${cacheId}' has been cleared`);
       });
       stream.on('error', function (error: any) {
         reject(`Error occurred while scanning keys in redis cache '${cacheId}': ${error}`);

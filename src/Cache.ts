@@ -1,4 +1,6 @@
 import { differenceInMilliseconds, formatDistanceStrict } from 'date-fns';
+import { CacheFlow } from './CacheFlow';
+import { LoggerInterface } from './config/CacheFlowConfiguration';
 import { LRUCache } from './delegate/lru/LRUCache';
 import { RedisCache } from './delegate/redis/RedisCache';
 import { redisClientProvider } from './redis/RedisClientProvider';
@@ -10,6 +12,7 @@ export abstract class Cache<K extends Object, V extends Object> {
   private static readonly instances: Map<string, Cache<any, any>> = new Map();
 
   private readonly cacheDefinition: CacheDefinition;
+  private readonly logger: LoggerInterface;
   private delegate: LRUCache | RedisCache;
 
   /**
@@ -29,26 +32,31 @@ export abstract class Cache<K extends Object, V extends Object> {
       },
       metadata: {}
     };
+    this.logger = CacheFlow.getLogger();
     Cache.instances.set(cacheId, this);
+
     this.delegate = new LRUCache(cacheId, { expirationTime, maxSize });
-    const redisClient = redisClientProvider.getRedisClient();
-    if (redisClient) {
-      const self = this;
-      redisClient.on('ready', function () {
-        console.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis Cache`);
-        self.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
-      });
-      redisClient.on('error', function (error: { code: string; message: string }) {
-        if (error.code === 'ECONNREFUSED') {
-          if (self.delegate instanceof RedisCache) {
-            console.error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory cache: `, error.message);
-            self.delegate = new LRUCache(cacheId, { expirationTime: expirationTime, maxSize });
+
+    if (CacheFlow.isRedisConfigured()) {
+      const redisClient = redisClientProvider.getRedisClient();
+      if (redisClient) {
+        const self = this;
+        redisClient.on('ready', function () {
+          self.logger.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis Cache`);
+          self.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
+        });
+        redisClient.on('error', function (error: { code: string; message: string }) {
+          if (error.code === 'ECONNREFUSED') {
+            if (self.delegate instanceof RedisCache) {
+              self.logger.error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory cache: `, error.message);
+              self.delegate = new LRUCache(cacheId, { expirationTime: expirationTime, maxSize });
+            }
           }
-        }
-        else if (error.code === 'ECONNRESET') {
-          console.error(`Error connecting to Redis cache: `, error.message);
-        }
-      });
+          else if (error.code === 'ECONNRESET') {
+            self.logger.error(`Error connecting to Redis cache: `, error.message);
+          }
+        });
+      }
     }
   }
 
@@ -124,7 +132,7 @@ export abstract class Cache<K extends Object, V extends Object> {
       return undefined;
     }
     if (!force) {
-      console.debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
+      this.logger.debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
       try {
         const keyToString = this.keyToString(key);
         const cachedValue = await this.delegate.get(keyToString);
@@ -159,7 +167,7 @@ export abstract class Cache<K extends Object, V extends Object> {
       return undefined;
     }
     if (!force) {
-      console.debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
+      this.logger.debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
       try {
         const keyToString = this.keyToString(key);
         const cachedValue = await this.delegate.get(keyToString);
@@ -182,7 +190,7 @@ export abstract class Cache<K extends Object, V extends Object> {
 
   public async set(key: K, value: V): Promise<void> {
     if (key === undefined || value === undefined) {
-      console.error(`Tried to store undefined key or value in cache '${this.getCacheId()}': key="${this.keyToString(key)}", value="${value}"`);
+      this.logger.error(`Tried to store undefined key or value in cache '${this.getCacheId()}': key="${this.keyToString(key)}", value="${value}"`);
     }
     else {
       const keyToString = this.keyToString(key);
@@ -231,7 +239,7 @@ export abstract class Cache<K extends Object, V extends Object> {
    * Deletes all entries in the cache;
    */
   public async reset() {
-    console.debug(`Clearing cache '${this.getCacheId()}'`);
+    this.logger.debug(`Clearing cache '${this.getCacheId()}'`);
     try {
       await this.delegate.reset();
     }
@@ -242,7 +250,7 @@ export abstract class Cache<K extends Object, V extends Object> {
 
   private async doLoadAndSet(key: K) {
     if (this.load) {
-      console.debug(`Loading value for key '${this.keyToString(key)}' into cache '${this.getCacheId()}'`);
+      this.logger.debug(`Loading value for key '${this.keyToString(key)}' into cache '${this.getCacheId()}'`);
       try {
         const value = await this.load(key);
         if (key !== undefined && value !== undefined) {
