@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.0090" tests="1" failures="0">
+  <testsuite name="Root Suite" timestamp="2020-11-13T15:26:50" tests="0" time="0.0000" failures="0">
+  </testsuite>
+  <testsuite name="SimpleCache Test" timestamp="2020-11-13T15:26:50" tests="1" file="/Users/alex/git/hooked/cache-flow/test/SimpleCacheTest.ts" time="0.0090" failures="0">
+    <testcase name="SimpleCache Test test should get same value from cache twice" time="0.0090" classname="test should get same value from cache twice">
+    </testcase>
+  </testsuite>
+</testsuites>

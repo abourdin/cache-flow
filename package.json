@@ -6,9 +6,8 @@
     "clean": "tsc --build --clean",
     "build": "tsc --build --verbose",
     "prepublish": "tsc",
-    "test": "ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\"  -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --ui bdd --slow 300",
-    "test-coverage": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --slow 300",
-    "coverage-report": "nyc report --reporter=json > coverage/coverage.json"
+    "test": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --ui bdd --slow 300",
+    "posttest": "nyc report --reporter=json > coverage/coverage.json"
   },
   "homepage": "https://github.com/abourdin/cache-flow",
   "repository": "https://github.com/abourdin/cache-flow",
@@ -18,8 +17,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "async-redis": "^1.1.7",
     "date-fns": "^2.16.1",
     "ioredis": "^4.19.2",
+    "lru-cache-for-clusters-as-promised": "^1.5.24",
     "redis": "^3.0.2",
     "typescript": "^4.0.5"
   },
