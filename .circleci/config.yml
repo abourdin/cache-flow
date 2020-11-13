@@ -77,15 +77,10 @@ jobs:
             mkdir -p ./test-results/mocha
       - run:
           name: Run tests
-          command: npm run test-coverage --reporter=none
+          command: npm run test
           timeout: 600
-      - run:
-          name: Generate code coverage
-          command: |
-            mkdir -p ./coverage/tmp
-            npm run coverage-report
       - codecov/upload:
-          file: coverage/coverage.json
+          file: coverage/*.json
       - store_test_results:
           path: test-results
 
