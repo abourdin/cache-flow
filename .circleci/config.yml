@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   node: circleci/node@3.0.0
+  codecov: codecov/codecov@1.0.2
 
 jobs:
   release:
@@ -58,6 +59,35 @@ jobs:
       - run:
           name: Build Project
           command: npm run build
+  test:
+    docker:
+      - image: cimg/node:12.18.3
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-v1-{{ checksum "package.json" }}
+      - run:
+          name: Install Redis
+          command: |
+            sudo apt update
+            sudo apt install redis-server
+      - run:
+          name: Create Results Directory
+          command: |
+            mkdir -p ./test-results/mocha
+      - run:
+          name: Run tests
+          command: npm run test-coverage --reporter=none
+          timeout: 600
+      - run:
+          name: Generate code coverage
+          command: |
+            mkdir -p ./coverage/tmp
+            npm run coverage-report
+      - codecov/upload:
+          file: coverage/coverage.json
+      - store_test_results:
+          path: test-results
 
   publish:
     docker:
@@ -79,7 +109,7 @@ workflows:
       - build:
           requires:
             - prepare-dependencies
-      - node/test:
+      - test:
           requires:
             - prepare-dependencies
   build-test-publish:
@@ -95,10 +125,10 @@ workflows:
       - build:
           requires:
             - prepare-dependencies
-      - node/test:
+      - test:
           requires:
             - prepare-dependencies
       - publish:
           requires:
             - build
-            - node/test
+            - test
