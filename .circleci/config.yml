@@ -1,7 +1,129 @@
 version: 2.1
 orbs:
   node: circleci/node@3.0.0
+  codecov: codecov/codecov@1.0.2
+
+jobs:
+  release:
+    docker:
+      - image: cimg/node:12.18.3
+    steps:
+      - checkout
+      - run:
+          name: Release New Version
+          command: |
+            RELEASE_VERSION=$(node -p -e "require('./package.json').version")
+            echo "Releasing version $RELEASE_VERSION"
+
+            # setup git
+            git config user.name "Release Script"
+            git config user.email "contact@abourdin.com"
+
+            # tag release version
+            git tag "release-$RELEASE_VERSION"
+            git push origin master --tags
+
+            # prepare development branch
+            git fetch
+            git checkout develop
+            npm version minor -m "Prepared branch for development: %s [skip ci]"
+            git push origin develop
+            git checkout -
+
+  prepare-dependencies:
+    docker:
+      - image: cimg/node:12.18.3
+    steps:
+      - checkout
+      - run:
+          name: Update npm
+          command: sudo npm install -g npm@latest
+      - restore_cache:
+          key: dependency-cache-v1-{{ checksum "package.json" }}
+      - run:
+          name: Install dependencies
+          command: |
+            npm install
+      - save_cache:
+          key: dependency-cache-v1-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+
+  build:
+    docker:
+      - image: cimg/node:12.18.3
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-v1-{{ checksum "package.json" }}
+      - run:
+          name: Build Project
+          command: npm run build
+  test:
+    docker:
+      - image: cimg/node:12.18.3
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-v1-{{ checksum "package.json" }}
+      - run:
+          name: Install Redis
+          command: |
+            sudo apt update
+            sudo apt install redis-server
+      - run:
+          name: Create Results Directory
+          command: |
+            mkdir -p ./test-results/mocha
+      - run:
+          name: Run tests
+          command: npm run test
+          timeout: 600
+      - codecov/upload:
+          file: coverage/*.json
+      - store_test_results:
+          path: test-results
+
+  publish:
+    docker:
+      - image: cimg/node:12.18.3
+    steps:
+      - checkout
+      - run:
+          name: Publish Project
+          command: npm publish
+
 workflows:
-  node-tests:
+  build-test:
     jobs:
-      - node/test
+      - prepare-dependencies:
+          filters:
+            branches:
+              ignore:
+                - master
+      - build:
+          requires:
+            - prepare-dependencies
+      - test:
+          requires:
+            - prepare-dependencies
+  build-test-publish:
+    jobs:
+      - release:
+          filters:
+            branches:
+              only:
+                - master
+      - prepare-dependencies:
+          requires:
+            - release
+      - build:
+          requires:
+            - prepare-dependencies
+      - test:
+          requires:
+            - prepare-dependencies
+      - publish:
+          requires:
+            - build
+            - test

@@ -3,7 +3,7 @@ import { Cache, CacheOptions } from './Cache';
 /**
  * Cache implementation enabling storage of any objects.
  */
-export abstract class SimpleCache<K extends Object, V extends any> extends Cache<K, V> {
+export abstract class BaseCache<K extends Object, V extends any> extends Cache<K, V> {
   /**
    * Constructor.
    *
@@ -12,7 +12,7 @@ export abstract class SimpleCache<K extends Object, V extends any> extends Cache
   protected constructor(cacheId: string, options: CacheOptions) {
     super(cacheId, options);
     this.addMetadata({
-      type: 'SimpleCache'
+      type: 'BaseCache'
     });
   }
 
