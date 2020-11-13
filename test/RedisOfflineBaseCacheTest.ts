@@ -2,7 +2,8 @@ global.process.env.REDIS_HOST = '127.0.0.1';
 global.process.env.REDIS_PORT = '3456';
 
 import { assert } from 'chai';
-import SimpleCache1 from '../examples/SimpleCache1';
+import StringStringCache from '../examples/StringStringCache';
+import { sleep } from './utils/TestUtils';
 
 const RedisServer = require('redis-server');
 
@@ -22,7 +23,7 @@ describe('RedisOfflineBaseCache Test', () => {
   it('test should fallback to LRU cache when redis server is offline', async function () {
     this.timeout(0);
 
-    const cache1 = new SimpleCache1();
+    const cache1 = new StringStringCache();
 
     await sleep(500); // waiting for Cache to connect to Redis
 
@@ -33,6 +34,19 @@ describe('RedisOfflineBaseCache Test', () => {
     const value1 = await cache1.get('foo');
     const value2 = await cache1.get('foo');
     assert.equal(value1, value2);
+
+    const value3 = await cache1.getWithMetadata('foo');
+    assert.equal(value1, value3.value);
+
+    await sleep(100);
+
+    const value4 = await cache1.get('foo', true);
+    assert.notEqual(value1, value4);
+
+    await sleep(100);
+
+    const value5 = await cache1.getWithMetadata('foo', true);
+    assert.notEqual(value4, value5.value);
 
     assert.isTrue(await cache1.exists('foo'));
 
@@ -52,7 +66,3 @@ describe('RedisOfflineBaseCache Test', () => {
   });
 
 });
-
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
