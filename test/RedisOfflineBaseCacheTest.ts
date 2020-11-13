@@ -1,8 +1,6 @@
-global.process.env.REDIS_HOST = '127.0.0.1';
-global.process.env.REDIS_PORT = '3456';
-
 import { assert } from 'chai';
 import StringStringCache from '../examples/StringStringCache';
+import { CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
 
 const RedisServer = require('redis-server');
@@ -18,6 +16,13 @@ describe('RedisOfflineBaseCache Test', () => {
     catch (error) {
       console.error(`Could not start Redis server: ${error.message}`);
     }
+
+    CacheFlow.configure({
+      redis: {
+        host: '127.0.0.1',
+        port: 3456
+      }
+    });
   });
 
   it('test should fallback to LRU cache when redis server is offline', async function () {

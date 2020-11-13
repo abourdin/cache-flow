@@ -1,6 +1,6 @@
 {
   "name": "cache-flow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
   "scripts": {
     "clean": "tsc --build --clean",
@@ -32,6 +32,7 @@
     "@types/node": "^14.14.7",
     "@types/redis": "^2.8.28",
     "chai": "^4.2.0",
+    "log4js": "^6.3.0",
     "mocha": "^8.2.1",
     "mocha-junit-reporter": "^2.0.0",
     "mocha-multi-reporters": "^1.5.1",

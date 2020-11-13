@@ -1,10 +1,7 @@
-global.process.env.REDIS_HOST = '127.0.0.1';
-global.process.env.REDIS_PORT = '6379';
-
 import { fail } from 'assert';
 import { assert } from 'chai';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache } from '../src';
+import { Cache, CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
 
 const RedisServer = require('redis-server');
@@ -20,6 +17,13 @@ describe('RedisBaseCache Test', () => {
     catch (error) {
       console.error('Could not start Redis server, maybe server is already running?');
     }
+
+    CacheFlow.configure({
+      redis: {
+        host: '127.0.0.1',
+        port: 6379
+      }
+    });
   });
 
   after(async function () {
@@ -68,7 +72,6 @@ describe('RedisBaseCache Test', () => {
 
     await cache1.reset();
     assert.isFalse(await cache1.exists('foo'));
-    return;
   });
 
   it('test should get errors when giving wrong key input over Redis server', async () => {
