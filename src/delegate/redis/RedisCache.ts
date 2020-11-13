@@ -1,5 +1,5 @@
 import { CacheOptions } from '../../Cache';
-import redisClientProvider from '../../redis/RedisClientProvider';
+import { redisClientProvider } from '../../redis/RedisClientProvider';
 
 /**
  * Cache class allowing to manage a Redis cache.
@@ -80,7 +80,8 @@ export class RedisCache {
     }
     const fullKey = this.buildKey(key);
     try {
-      return this.asyncRedisClient.exists(fullKey);
+      const exists = await this.asyncRedisClient.exists(fullKey);
+      return exists == true;
     }
     catch (error) {
       console.error(`Failed to check existence of entry in Redis cache '${this.cacheId}' for key="${fullKey}": ${error}`);
