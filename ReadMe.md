@@ -8,11 +8,91 @@
 | develop | [![develop CI Status](https://circleci.com/gh/abourdin/cache-flow/tree/develop.svg?style=shield)](https://app.circleci.com/pipelines/github/abourdin/cache-flow?branch=develop) | [![develop Coverage Status](https://codecov.io/github/abourdin/cache-flow/coverage.svg?branch=develop)](https://codecov.io/gh/abourdin/cache-flow/branch/develop) |
 | master | [![master CI Status](https://circleci.com/gh/abourdin/cache-flow/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/abourdin/cache-flow?branch=master) | [![master Coverage Status](https://codecov.io/github/abourdin/cache-flow/coverage.svg?branch=master)](https://codecov.io/gh/abourdin/cache-flow/branch/master) |
 
-## Installing
+# Table of Contents
+
+* [Installation](#installation)
+* [Example of usage](#example-of-usage)
+
+## Installation
 
 ```sh
 npm install --save cache-flow
 ```
+
+## Example of usage
+
+### A first simple cache
+
+1. Create a cache `SimpleCache.ts`
+
+```typescript
+class StringStringCache extends BaseCache<string, string> {
+
+  constructor() {
+    super('simple-cache-1', {
+      expirationTime: 3600,
+      maxSize: 100
+    });
+  }
+
+  protected async load(key: string): Promise<string> {
+    const now = new Date();
+    return key + '-' + now.getTime();
+  }
+
+}
+```
+
+2. Use your cache
+
+```typescript
+const cache = new SimpleCache();
+const myValue = cache.get('myKey');
+console.log(myValue);
+```
+
+3. What happened behind the scenes
+
+Unlike lots of cache libraries, with `Cache Flow` don't need to manually check if a key exists in your cache before trying to get it, and then set the value yourself.
+
+When you call `get` function of your cache, `Cache Flow` takes automatically care of calling the load function your defined for your cache, and stores the value for later.
+
+So if you call `get` right after giving the same key, it will bypass the loader function, and directly pull the value from the inner cache.
+
+### A more advanced example
+
+```typescript
+class UserProfileCache extends BaseCache<User, UserProfile> {
+
+  constructor() {
+    super('user-profile-cache', {
+      expirationTime: 3600,
+      maxSize: 3000
+    });
+  }
+
+  protected async load(user: User): Promise<UserProfile> {
+    const profile = await userProfileService.getProfile(user);
+    return profile;
+  }
+  
+  protected keyToString(user: User): string {
+    return user.id;
+  }
+
+}
+```
+
+`Cache Flow` allows you to define caches with more complex keys and values, which can be objects, arrays, ...
+
+These caches require you to implement a `keyToString` function, transforming your key into a unique string identifying your key. It can be as simple as an ID, or a combination of several parameters that define your key, like:
+```typescript
+protected keyToString(channel: Channel): string {
+  return `${channel.code}-${channel.language}`;
+}
+```
+
+# Project Information
 
 ## Author
 
@@ -25,6 +105,3 @@ npm install --save cache-flow
 ## Show your support
 
 Give a ⭐️ if this project helped you!
-
-***
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
