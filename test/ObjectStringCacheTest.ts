@@ -2,9 +2,13 @@ import { fail } from 'assert';
 import { assert } from 'chai';
 import ObjectStringCache from '../examples/ObjectStringCache';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache } from '../src';
+import { Cache, CacheFlow } from '../src';
 
 describe('ObjectStringCache Test', () => {
+
+  before(async function () {
+    CacheFlow.configure({});
+  });
 
   after(async function () {
     await Cache.resetAll();

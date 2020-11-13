@@ -1,9 +1,37 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
+import * as log4js from 'log4js';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache } from '../src';
+import { Cache, CacheFlow } from '../src';
+
+const logger = log4js.getLogger();
+logger.level = 'debug';
+log4js.configure({
+  appenders: {
+    out: {
+      type: 'stdout',
+      layout: {
+        type: 'pattern',
+        pattern: '%[[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%f{1}]:%] %m'
+      }
+    }
+  },
+  categories: {
+    default: {
+      appenders: ['out'],
+      level: 'debug',
+      enableCallStack: true
+    }
+  }
+});
 
 describe('BaseCache Test', () => {
+
+  before(async function () {
+    CacheFlow.configure({
+      logger: logger
+    });
+  });
 
   after(async function () {
     await Cache.resetAll();

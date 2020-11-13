@@ -1,10 +1,14 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache } from '../src';
+import { Cache, CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
 
 describe('BaseCache Test', () => {
+
+  before(async function () {
+    CacheFlow.configure({});
+  });
 
   after(async function () {
     await Cache.resetAll();
