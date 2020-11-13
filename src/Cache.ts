@@ -80,7 +80,9 @@ export abstract class Cache<K extends Object, V extends Object> {
     return Array.from(this.instances.values());
   }
 
-  public keyToString(key: K): string {
+  protected abstract async load(key: K): Promise<V>;
+
+  protected keyToString(key: K): string {
     if (typeof key === 'string') {
       return key;
     }
@@ -88,8 +90,6 @@ export abstract class Cache<K extends Object, V extends Object> {
       throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
     }
   }
-
-  protected abstract async load(key: K): Promise<V>;
 
   protected serialize(value: V): any {
     return value;
@@ -260,7 +260,7 @@ export abstract class Cache<K extends Object, V extends Object> {
       }
     }
     else {
-      return undefined;
+      throw new Error(`Cache '${this.getCacheId()}' must implement a load function`);
     }
   }
 }

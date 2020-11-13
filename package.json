@@ -1,7 +1,7 @@
 {
   "name": "cache-flow",
   "version": "1.0.0",
-  "description": "A library made for easy implementation of robust NodeJS application caches",
+  "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
   "scripts": {
     "clean": "tsc --build --clean",
     "build": "tsc --build --verbose",

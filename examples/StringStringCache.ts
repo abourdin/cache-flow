@@ -1,6 +1,6 @@
 import { BaseCache } from '../src';
 
-export default class SimpleCache1 extends BaseCache<string, string> {
+export default class StringStringCache extends BaseCache<string, string> {
 
   constructor() {
     super('simple-cache-1', {
@@ -10,7 +10,8 @@ export default class SimpleCache1 extends BaseCache<string, string> {
   }
 
   protected async load(key: string): Promise<string> {
-    return key + '-' + new Date();
+    const now = new Date();
+    return key + '-' + now.getTime() + now.getMilliseconds();
   }
 
 }

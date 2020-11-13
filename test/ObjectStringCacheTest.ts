@@ -1,38 +1,42 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
+import ObjectStringCache from '../examples/ObjectStringCache';
 import StringStringCache from '../examples/StringStringCache';
 import { Cache } from '../src';
 
-describe('BaseCache Test', () => {
+describe('ObjectStringCache Test', () => {
 
   after(async function () {
     await Cache.resetAll();
   });
 
   it('test should check basic cache functions', async () => {
-    const cache1 = new StringStringCache();
-    const value1 = await cache1.get('foo');
-    const value2 = await cache1.get('foo');
+    const user1 = {
+      id: 'id-123',
+      username: 'john-doe'
+    };
+    const user2 = {
+      id: 'id-234',
+      username: 'foo-bar'
+    };
+
+    const cache1 = new ObjectStringCache();
+    const value1 = await cache1.get(user1);
+    const value2 = await cache1.get(user1);
     assert.equal(value1, value2);
 
-    const value3 = await cache1.getWithMetadata('foo');
-    assert.equal(value1, value3.value);
+    assert.isTrue(await cache1.exists(user1));
 
-    assert.isTrue(await cache1.exists('foo'));
+    assert.isFalse(await cache1.exists(user2));
 
-    assert.isFalse(await cache1.exists('wrong'));
+    await cache1.delete(user2);
+    assert.isFalse(await cache1.exists(user2));
 
-    await cache1.get('bar');
-    assert.isTrue(await cache1.exists('bar'));
-
-    await cache1.delete('bar');
-    assert.isFalse(await cache1.exists('bar'));
-
-    await cache1.set('baz', 'my-value');
-    assert.equal('my-value', await cache1.get('baz'));
+    await cache1.set(user2, 'my-value');
+    assert.equal('my-value', await cache1.get(user2));
 
     await cache1.reset();
-    assert.isFalse(await cache1.exists('foo'));
+    assert.isFalse(await cache1.exists(user2));
   });
 
   it('test should get errors when giving wrong key input', async () => {
