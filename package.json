@@ -10,6 +10,8 @@
     "test-coverage": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --slow 300",
     "coverage-report": "nyc report"
   },
+  "homepage": "https://github.com/abourdin/cache-flow",
+  "repository": "https://github.com/abourdin/cache-flow",
   "keywords": [],
   "author": "Alexandre Bourdin <contact@abourdin.com>",
   "license": "ISC",
