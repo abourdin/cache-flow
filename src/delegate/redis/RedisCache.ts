@@ -1,5 +1,6 @@
+import IORedis from 'ioredis';
 import { CacheOptions } from '../../Cache';
-import redisClientProvider from '../../redis/RedisClientProvider';
+import { redisClientProvider } from '../../redis/RedisClientProvider';
 
 /**
  * Cache class allowing to manage a Redis cache.
@@ -7,9 +8,7 @@ import redisClientProvider from '../../redis/RedisClientProvider';
 export class RedisCache {
   private readonly cacheId: string;
   private readonly maxAge: number;
-  private redisClient: any;
-  private asyncRedisClient: any;
-  private ioRedisClient: any;
+  private redisClient: IORedis.Redis;
 
   /**
    * Constructor.
@@ -21,8 +20,6 @@ export class RedisCache {
     this.cacheId = cacheId;
     this.maxAge = expirationTime;
     this.redisClient = redisClientProvider.getRedisClient();
-    this.asyncRedisClient = redisClientProvider.getAsyncRedisClient();
-    this.ioRedisClient = redisClientProvider.getIORedisClient();
   }
 
   /**
@@ -38,14 +35,14 @@ export class RedisCache {
     const fullKey = this.buildKey(key);
     let value = undefined;
     try {
-      const cachedValue = await this.asyncRedisClient.get(fullKey);
+      const cachedValue = await this.redisClient.get(fullKey);
       if (cachedValue !== undefined) {
         value = JSON.parse(cachedValue);
       }
     }
     catch (error) {
       console.error(`Failed to get value from Redis cache '${this.cacheId}' for key="${fullKey}": ${error}`);
-      this.asyncRedisClient.del(fullKey);
+      await this.redisClient.del(fullKey);
     }
     return value;
   }
@@ -57,10 +54,10 @@ export class RedisCache {
     const fullKey = this.buildKey(key);
     try {
       if (this.maxAge) {
-        await this.asyncRedisClient.set(fullKey, JSON.stringify(value), 'EX', this.maxAge);
+        await this.redisClient.set(fullKey, JSON.stringify(value), 'EX', this.maxAge);
       }
       else {
-        await this.asyncRedisClient.set(fullKey, JSON.stringify(value));
+        await this.redisClient.set(fullKey, JSON.stringify(value));
       }
     }
     catch (error) {
@@ -80,7 +77,8 @@ export class RedisCache {
     }
     const fullKey = this.buildKey(key);
     try {
-      return this.asyncRedisClient.exists(fullKey);
+      const exists = await this.redisClient.exists(fullKey);
+      return exists === 1;
     }
     catch (error) {
       console.error(`Failed to check existence of entry in Redis cache '${this.cacheId}' for key="${fullKey}": ${error}`);
@@ -99,7 +97,7 @@ export class RedisCache {
     }
     const fullKey = this.buildKey(key);
     try {
-      await this.asyncRedisClient.del(fullKey);
+      await this.redisClient.del(fullKey);
     }
     catch (error) {
       console.error(`Failed to delete entry in Redis cache '${this.cacheId}' for key '${fullKey}': ${error}`);
@@ -112,7 +110,7 @@ export class RedisCache {
   async reset(): Promise<void> {
     const cacheId = this.cacheId;
     const keyPattern = this.buildKey('*');
-    const stream = this.ioRedisClient.scanStream({ match: keyPattern, count: 100 });
+    const stream = this.redisClient.scanStream({ match: keyPattern, count: 100 });
     const self = this;
     return new Promise((resolve, reject) => {
       stream.on('data', function (matchingKeys: string[]) {

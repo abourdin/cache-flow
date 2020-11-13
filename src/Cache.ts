@@ -1,7 +1,7 @@
 import { differenceInMilliseconds, formatDistanceStrict } from 'date-fns';
 import { LRUCache } from './delegate/lru/LRUCache';
 import { RedisCache } from './delegate/redis/RedisCache';
-import redisClientProvider from './redis/RedisClientProvider';
+import { redisClientProvider } from './redis/RedisClientProvider';
 
 /**
  * Cache class allowing to create caches with automatic cache loading and delegates.
@@ -33,10 +33,6 @@ export abstract class Cache<K extends Object, V extends Object> {
     this.delegate = new LRUCache(cacheId, { expirationTime, maxSize });
     const redisClient = redisClientProvider.getRedisClient();
     if (redisClient) {
-      if (redisClient.connected) {
-        console.debug(`Successfully connected to Redis server, switching '${cacheId}' to Redis Cache`);
-        this.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
-      }
       const self = this;
       redisClient.on('ready', function () {
         console.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis Cache`);
@@ -84,7 +80,9 @@ export abstract class Cache<K extends Object, V extends Object> {
     return Array.from(this.instances.values());
   }
 
-  public keyToString(key: K): string {
+  protected abstract async load(key: K): Promise<V>;
+
+  protected keyToString(key: K): string {
     if (typeof key === 'string') {
       return key;
     }
@@ -92,8 +90,6 @@ export abstract class Cache<K extends Object, V extends Object> {
       throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
     }
   }
-
-  protected abstract async load(key: K): Promise<V>;
 
   protected serialize(value: V): any {
     return value;
@@ -264,7 +260,7 @@ export abstract class Cache<K extends Object, V extends Object> {
       }
     }
     else {
-      return undefined;
+      throw new Error(`Cache '${this.getCacheId()}' must implement a load function`);
     }
   }
 }

@@ -1,4 +1,4 @@
-const LRUClusterCache = require('lru-cache-for-clusters-as-promised');
+import LRUClusterCache from 'lru-cache-for-clusters-as-promised';
 
 /**
  * Cache class allowing to bind an in-memory LRU Cache.
@@ -17,15 +17,14 @@ export class LRUCache {
    */
   constructor(cacheId: string, { expirationTime, maxSize }: { expirationTime: number; maxSize: number }) {
     this.cacheId = cacheId;
-    const cacheOptions = {
+    this.cache = new LRUClusterCache({
       namespace: cacheId || 'default-cache',
       timeout: 100,
       maxAge: expirationTime * 1000,
       max: maxSize,
       stale: false,
       failsafe: 'resolve'
-    };
-    this.cache = new LRUClusterCache(cacheOptions);
+    });
   }
 
   /**
