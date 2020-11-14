@@ -11,10 +11,12 @@
 # Table of Contents
 
 * [Installation](#installation)
-* [Example of usage](#example-of-usage)
+* [Usage Example](#usage-example)
     - [A first simple cache](#a-first-simple-cache)
     - [A more advanced example](#a-more-advanced-example)
+* [Custom serialization/deserialization](#custom-serializationdeserialization)
 * [Configure Redis](#configure-redis)
+* [Custom logger](#custom-logger) 
 * [Use with dependency injection](#use-with-dependency-injection)
 
 ## Installation
@@ -23,16 +25,16 @@
 npm install --save cache-flow
 ```
 
-## Example of usage
+## Usage Example
 
 ### A first simple cache
 
 1. Create a cache `SimpleCache.ts`
 
 ```typescript
-import { BaseCache } from 'cache-flow';
+import { CacheLoader } from 'cache-flow';
 
-class StringStringCache extends BaseCache<string, string> {
+class StringStringCache extends CacheLoader<string, string> {
 
   constructor() {
     super('simple-cache-1', {
@@ -68,7 +70,7 @@ So if you call `get` right after, giving the same key, it will bypass the loader
 ### A more advanced example
 
 ```typescript
-class UserProfileCache extends BaseCache<User, UserProfile> {
+class UserProfileCache extends CacheLoader<User, UserProfile> {
 
   constructor() {
     super('user-profile-cache', {
@@ -95,6 +97,55 @@ These caches require you to implement a `keyToString` function, transforming you
 ```typescript
 protected keyToString(channel: Channel): string {
   return `${channel.code}-${channel.language}`;
+}
+```
+
+## Custom serialization/deserialization
+
+When extending `Cache`, you cache will come with default serialization and deserialization implementations for the 
+`serialize` and `deserialize` methods, which take care of storing objects and arrays as JSON in the inner cache, and transform
+them back when getting values out of the cache.
+
+In the case where you need to implement your own serialization and deserialization, for example to cache specific framework classes
+or entities, your `CacheLoader` implementation can override `serialize` and `deserialize` methods:
+
+```typescript
+class MyEntityCache extends CacheLoader<string, MyEntity> {
+
+  constructor() {
+    super('my-entity-cache', {
+      expirationTime: 3600,
+      maxSize: 3000
+    });
+  }
+
+  protected async load(id: string): Promise<MyEntity> {
+    const entity = await repository.findById(id);
+    return entity;
+  }
+
+  protected serialize(entity: MyEntity): any {
+    let serializedValue;
+    if (entity instanceof MyEntity) {
+      serializedValue = { schemaName: entity.getSchemaName(), entity: instance.toJSON() };
+    }
+    else {
+      serializedValue = entity;
+    }
+    return serializedValue;
+  }
+
+  protected deserialize(serialized: any): MyEntity {
+    let unserializedValue;
+    if (serialized && serialized.schemaName) {
+      unserializedValue = MyEntity.fromJSON(serialized.value);
+    }
+    else {
+      unserializedValue = serialized;
+    }
+    return unserializedValue;
+  }
+  
 }
 ```
 
@@ -126,17 +177,17 @@ will never experience any interruption in your caching layer.
 
 ## Use with dependency injection
 
-**Cache Flow** is compatible with your favorite Typescript DI framework, like [typedi](https://github.com/typestack/typedi),
-[tsyringe](https://github.com/microsoft/tsyringe), [InversifyJS](https://github.com/inversify/InversifyJS)...
+**Cache Flow** is compatible with your favorite Typescript DI framework, like [typedi](https://www.npmjs.com/package/typedi),
+[tsyringe](https://www.npmjs.com/package/tsyringe), [InversifyJS](https://www.npmjs.com/package/inversify)...
 
 For example, with typedi:
 
 ```typescript
-import { BaseCache } from 'cache-flow';
+import { CacheLoader } from 'cache-flow';
 import { Inject, Service } from 'typedi';
 
 @Service()
-class UserCache extends BaseCache<string, User> {
+class UserCache extends CacheLoader<string, User> {
 
   @Inject()
   private userService: UserService;
@@ -153,6 +204,33 @@ class UserCache extends BaseCache<string, User> {
   }
 
 }
+```
+
+## Custom Logger
+
+**Cache Flow** comes with a default logger which can log various information about what happens with your caches (when values are get, loaded, some errors, ...)
+
+By default, **Cache Flow** will only log errors to `console.error`, but you can provide your own logger in the initial configuration of the library, like [log4js](https://www.npmjs.com/package/log4js), [winston](https://www.npmjs.com/package/winston), ...
+
+See the example below with [log4js](https://www.npmjs.com/package/log4js):
+
+```typescript
+import { CacheFlow } from 'cache-flow';
+import * as log4js from 'log4js';
+
+CacheFlow.configure({
+  logger: log4js.getLogger()
+});
+```
+
+You can also simply pass the `console` to get all logs output to the stdout, including `debug` logs, like so:
+
+```typescript
+import { CacheFlow } from 'cache-flow';
+
+CacheFlow.configure({
+  logger: console
+});
 ```
 
 # Project Information

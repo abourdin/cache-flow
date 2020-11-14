@@ -2,7 +2,7 @@ import { fail } from 'assert';
 import { assert } from 'chai';
 import ObjectStringCache from '../examples/ObjectStringCache';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache, CacheFlow } from '../src';
+import { CacheFlow } from '../src';
 
 describe('ObjectStringCache Test', () => {
 
@@ -11,7 +11,7 @@ describe('ObjectStringCache Test', () => {
   });
 
   after(async function () {
-    await Cache.resetAll();
+    await CacheFlow.resetAll();
   });
 
   it('test should check basic cache functions', async () => {

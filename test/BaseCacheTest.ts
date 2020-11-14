@@ -2,7 +2,7 @@ import { fail } from 'assert';
 import { assert } from 'chai';
 import * as log4js from 'log4js';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache, CacheFlow } from '../src';
+import { CacheFlow } from '../src';
 
 const logger = log4js.getLogger();
 logger.level = 'debug';
@@ -34,7 +34,7 @@ describe('BaseCache Test', () => {
   });
 
   after(async function () {
-    await Cache.resetAll();
+    await CacheFlow.resetAll();
   });
 
   it('test should check basic cache functions', async () => {
@@ -59,7 +59,10 @@ describe('BaseCache Test', () => {
     await cache1.set('baz', 'my-value');
     assert.equal('my-value', await cache1.get('baz'));
 
-    await cache1.reset();
+    const value5 = await CacheFlow.get('simple-cache-1').get('baz');
+    assert.equal('my-value', value5);
+
+    await CacheFlow.reset('simple-cache-1');
     assert.isFalse(await cache1.exists('foo'));
   });
 

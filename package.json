@@ -1,6 +1,6 @@
 {
   "name": "cache-flow",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
   "scripts": {
     "clean": "rimraf build coverage test-results",
@@ -11,7 +11,16 @@
   },
   "homepage": "https://github.com/abourdin/cache-flow",
   "repository": "https://github.com/abourdin/cache-flow",
-  "keywords": [],
+  "keywords": [
+    "cache",
+    "cache-loader",
+    "redis",
+    "lru",
+    "in-memory",
+    "node",
+    "typescript",
+    "di"
+  ],
   "author": "Alexandre Bourdin <contact@abourdin.com>",
   "license": "ISC",
   "main": "index.js",

@@ -1,7 +1,7 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache, CacheFlow } from '../src';
+import { CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
 
 describe('BaseCache Test', () => {
@@ -11,7 +11,7 @@ describe('BaseCache Test', () => {
   });
 
   after(async function () {
-    await Cache.resetAll();
+    await CacheFlow.resetAll();
   });
 
   it('test should check basic cache functions', async () => {

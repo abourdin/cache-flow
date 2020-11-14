@@ -10,7 +10,7 @@ export interface RedisCacheConfiguration {
 }
 
 export interface LoggerInterface {
-  trace?(message: any, ...args: any[]): void;
+  log(...args: any[]): void;
 
   debug(message: any, ...args: any[]): void;
 
@@ -19,27 +19,23 @@ export interface LoggerInterface {
   warn(message: any, ...args: any[]): void;
 
   error(message: any, ...args: any[]): void;
-
-  fatal?(message: any, ...args: any[]): void;
 }
 
-export class DummyLogger implements LoggerInterface {
+export class DefaultLogger implements LoggerInterface {
+  public log(...args: any[]): void {
+  }
+
   public debug(message: any, ...args: any[]): void {
-  }
-
-  public error(message: any, ...args: any[]): void {
-  }
-
-  public fatal(message: any, ...args: any[]): void {
   }
 
   public info(message: any, ...args: any[]): void {
   }
 
-  public trace(message: any, ...args: any[]): void {
+  public warn(message: any, ...args: any[]): void {
   }
 
-  public warn(message: any, ...args: any[]): void {
+  public error(message: any, ...args: any[]): void {
+    console.error(...message, ...args);
   }
 
 }

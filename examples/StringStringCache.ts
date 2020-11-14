@@ -1,6 +1,6 @@
-import { BaseCache } from '../src';
+import { CacheLoader } from '../src';
 
-export default class StringStringCache extends BaseCache<string, string> {
+export default class StringStringCache extends CacheLoader<string, string> {
 
   constructor() {
     super('simple-cache-1', {

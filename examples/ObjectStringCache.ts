@@ -1,11 +1,11 @@
-import { BaseCache } from '../src';
+import { CacheLoader } from '../src';
 
 class User {
   id: string;
   username: string;
 }
 
-export default class ObjectStringCache extends BaseCache<User, string> {
+export default class ObjectStringCache extends CacheLoader<User, string> {
 
   constructor() {
     super('simple-cache-2', {

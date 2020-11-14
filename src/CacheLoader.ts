@@ -8,9 +8,7 @@ import { redisClientProvider } from './redis/RedisClientProvider';
 /**
  * Cache class allowing to create caches with automatic cache loading and delegates.
  */
-export abstract class Cache<K extends Object, V extends Object> {
-  private static readonly instances: Map<string, Cache<any, any>> = new Map();
-
+export abstract class CacheLoader<K extends Object, V extends Object> {
   private readonly cacheDefinition: CacheDefinition;
   private readonly logger: LoggerInterface;
   private delegate: LRUCache | RedisCache;
@@ -33,7 +31,7 @@ export abstract class Cache<K extends Object, V extends Object> {
       metadata: {}
     };
     this.logger = CacheFlow.getLogger();
-    Cache.instances.set(cacheId, this);
+    CacheFlow.addInstance(cacheId, this);
 
     this.delegate = new LRUCache(cacheId, { expirationTime, maxSize });
 
@@ -60,34 +58,6 @@ export abstract class Cache<K extends Object, V extends Object> {
     }
   }
 
-  public static get(cacheId: string) {
-    return Cache.instances.get(cacheId);
-  }
-
-  public static async delete(cacheId: string, key: any): Promise<void> {
-    const cache = Cache.get(cacheId);
-    if (cache) {
-      await cache.delete(key);
-    }
-  }
-
-  public static async reset(cacheId: string) {
-    const cache = Cache.get(cacheId);
-    if (cache) {
-      await cache.reset();
-    }
-  }
-
-  public static async resetAll() {
-    for (const cache of Array.from(this.instances.values())) {
-      await cache.reset();
-    }
-  }
-
-  public static getInstances(): Cache<any, any>[] {
-    return Array.from(this.instances.values());
-  }
-
   protected abstract async load(key: K): Promise<V>;
 
   protected keyToString(key: K): string {
@@ -100,11 +70,25 @@ export abstract class Cache<K extends Object, V extends Object> {
   }
 
   protected serialize(value: V): any {
-    return value;
+    let serializedValue;
+    if (typeof value === 'object' || Array.isArray(value)) {
+      serializedValue = { format: 'JSON', value: JSON.stringify(value) };
+    }
+    else {
+      serializedValue = value;
+    }
+    return serializedValue;
   }
 
-  protected deserialize(serializedValue: any): V {
-    return serializedValue;
+  protected deserialize(value: any): V {
+    let unserializedValue;
+    if (value && value.format === 'JSON') {
+      unserializedValue = JSON.parse(value.value);
+    }
+    else {
+      unserializedValue = value;
+    }
+    return unserializedValue;
   }
 
   public getCacheId(): string {

@@ -1,7 +1,7 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
 import StringStringCache from '../examples/StringStringCache';
-import { Cache, CacheFlow } from '../src';
+import { CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
 
 const RedisServer = require('redis-server');
@@ -27,7 +27,7 @@ describe('RedisBaseCache Test', () => {
   });
 
   after(async function () {
-    await Cache.resetAll();
+    await CacheFlow.resetAll();
 
     await redisServer.close();
   });
