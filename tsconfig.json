@@ -6,15 +6,19 @@
       "es2019"
     ],
     "declaration": true,
-    "outDir": "./dist",
+    "rootDir": ".",
+    "outDir": "build/compiled",
     "noImplicitAny": true,
     "moduleResolution": "node",
-    "baseUrl": "./",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
