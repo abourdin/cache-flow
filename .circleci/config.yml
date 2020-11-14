@@ -98,6 +98,18 @@ jobs:
           name: Package Project
           command: npm run package
       - run:
+          name: Generate JSDoc
+          command: |
+            mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+            git config user.name "Release Script"
+            git config user.email "contact@abourdin.com"
+
+            git checkout -B docs
+
+            npm run docs
+            git add docs/* && git commit -m "Updating JSDoc"
+            git push -f origin docs
+      - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > build/package/.npmrc
       - run:
