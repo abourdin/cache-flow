@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "tsc --build --clean",
     "build": "tsc --build --verbose",
-    "prepublish": "tsc",
+    "prepare": "tsc",
     "test": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --ui bdd --slow 300",
     "posttest": "nyc report --reporter=json > coverage/coverage.json"
   },
