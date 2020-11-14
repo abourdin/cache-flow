@@ -83,20 +83,26 @@ jobs:
           file: coverage/*.json
       - store_test_results:
           path: test-results
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./*
 
   publish:
     docker:
       - image: cimg/node:12.18.3
     steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-v1-{{ checksum "package.json" }}
+      - attach_workspace:
+          at: .
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publish Project
-          command: npm publish
+          command: |
+            npm run package
+            cd build/package
+            npm publish
 
 workflows:
   build-test:
