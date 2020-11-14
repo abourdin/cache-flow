@@ -98,6 +98,14 @@ jobs:
           name: Package Project
           command: npm run package
       - run:
+          name: Generate JSDoc
+          command: |
+            git branch -D docs
+            git checkout -B docs
+            npm run docs
+            git add docs/* && git commit -m "Updating JSDoc"
+            git push -f origin docs
+      - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > build/package/.npmrc
       - run:

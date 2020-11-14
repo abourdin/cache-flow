@@ -19,6 +19,11 @@
   },
   "exclude": [
     "node_modules",
-    "dist"
-  ]
+    "build"
+  ],
+  "typedocOptions": {
+    "entryPoints": "./src/index.ts",
+    "mode": "library",
+    "out": "docs"
+  }
 }

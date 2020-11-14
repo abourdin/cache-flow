@@ -7,9 +7,10 @@
     "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
     "test": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --ui bdd --slow 300",
     "posttest": "nyc report --reporter=json > coverage/coverage.json",
+    "docs": "typedoc",
     "package": "copyfiles -u 3 \"build/compiled/src/**/*\" build/package && copyfiles package.json README.md build/package"
   },
-  "homepage": "https://github.com/abourdin/cache-flow",
+  "homepage": "https://abourdin.github.io/cache-flow/",
   "repository": "https://github.com/abourdin/cache-flow",
   "keywords": [
     "cache",
@@ -49,7 +50,8 @@
     "nyc": "^15.1.0",
     "redis-server": "^1.2.2",
     "rimraf": "^3.0.2",
-    "ts-mocha": "^8.0.0"
+    "ts-mocha": "^8.0.0",
+    "typedoc": "^0.20.0-beta.8"
   },
   "nyc": {
     "check-coverage": true,
