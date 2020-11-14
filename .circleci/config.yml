@@ -92,6 +92,9 @@ jobs:
       - restore_cache:
           key: dependency-cache-v1-{{ checksum "package.json" }}
       - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
           name: Publish Project
           command: npm publish
 
