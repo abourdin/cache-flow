@@ -100,8 +100,8 @@ protected keyToString(channel: Channel): string {
 
 ## Configure Redis
 
-Cache Flow also supports distributed caching by using Redis as the caching engine.
-To have your cache instances use Redis behind the scenes, Cache Flow must be configured as part of the startup of your application,
+**Cache Flow** also supports distributed caching by using Redis as the caching engine.
+To have your cache instances use Redis behind the scenes, **Cache Flow** must be configured as part of the startup of your application,
 before any cache is instantiated.
 
 ```typescript
@@ -118,7 +118,7 @@ CacheFlow.configure({
 const cache = new SimpleCache();
 ```
 
-But what if your Redis server has to restart or goes down? Don't worry, Cache Flow has got your covered!
+But what if your Redis server has to restart or goes down? Don't worry, **Cache Flow** has got your covered!
 
 In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache, until
 your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This way, you
@@ -126,7 +126,7 @@ will never experience any interruption in your caching layer.
 
 ## Use with dependency injection
 
-Cache Flow is compatible with your favorite Typescript DI framework, like [typedi](https://github.com/typestack/typedi),
+**Cache Flow** is compatible with your favorite Typescript DI framework, like [typedi](https://github.com/typestack/typedi),
 [tsyringe](https://github.com/microsoft/tsyringe), [InversifyJS](https://github.com/inversify/InversifyJS)...
 
 For example, with typedi:
