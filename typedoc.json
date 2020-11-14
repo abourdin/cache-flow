@@ -1,0 +1,18 @@
+{
+  "links": [
+    {
+      "label": "npm",
+      "url": "https://www.npmjs.com/package/cache-flow"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/abourdin/cache-flow"
+    }
+  ],
+  "source": [
+    {
+      "path": "https://github.com/abourdin/cache-flow/blob/master/src/",
+      "line": "L"
+    }
+  ]
+}
