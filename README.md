@@ -14,10 +14,15 @@
 * [Usage Example](#usage-example)
     - [A first simple cache](#a-first-simple-cache)
     - [A more advanced example](#a-more-advanced-example)
+* [Configuration](#configuration)
+    - [Configure Redis](#configure-redis)
+    - [Custom logger](#custom-logger)
+    - [Detailed configuration](#detailed-configuration) 
 * [Custom serialization/deserialization](#custom-serializationdeserialization)
-* [Configure Redis](#configure-redis)
-* [Custom logger](#custom-logger) 
 * [Use with dependency injection](#use-with-dependency-injection)
+* [Cache Flow Reference](#cacheflow-reference)
+    - [CacheLoader<K, V> methods](#cacheloaderk-v-methods)
+    - [CacheFlow methods](#cacheflow-methods)
 
 ## Installation
 
@@ -38,8 +43,7 @@ class StringStringCache extends CacheLoader<string, string> {
 
   constructor() {
     super('simple-cache-1', {
-      expirationTime: 3600,
-      maxSize: 100
+      expirationTime: 3600 // 1h in seconds
     });
   }
 
@@ -74,8 +78,7 @@ class UserProfileCache extends CacheLoader<User, UserProfile> {
 
   constructor() {
     super('user-profile-cache', {
-      expirationTime: 3600,
-      maxSize: 3000
+      expirationTime: 3600 // 1h in seconds
     });
   }
 
@@ -100,6 +103,78 @@ protected keyToString(channel: Channel): string {
 }
 ```
 
+## Configuration
+
+### Configure Redis
+
+**Cache Flow** also supports distributed caching by using Redis as the caching engine.
+To have your cache instances use Redis behind the scenes, **Cache Flow** must be configured as part of the startup of your application,
+before any cache is instantiated.
+
+```typescript
+import { CacheFlow } from 'cache-flow';
+
+CacheFlow.configure({
+  redis: {
+    host: 'your.redis.server.com',
+    port: 6379
+  }
+});
+
+// all set, now you can start caching!
+const cache = new SimpleCache();
+```
+
+But what if your Redis server has to restart or goes down? Don't worry, **Cache Flow** has got your covered!
+
+In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache, until
+your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This way, you
+will never experience any interruption in your caching layer.
+
+### Custom Logger
+
+**Cache Flow** comes with a default logger which can log various information about what happens with your caches (when values are get, loaded, some errors, ...)
+
+By default, **Cache Flow** will only log errors to `console.error`, but you can provide your own logger in the initial configuration of the library, like [log4js](https://www.npmjs.com/package/log4js), [winston](https://www.npmjs.com/package/winston), ...
+
+See the example below with [log4js](https://www.npmjs.com/package/log4js):
+
+```typescript
+import { CacheFlow } from 'cache-flow';
+import * as log4js from 'log4js';
+
+CacheFlow.configure({
+  logger: log4js.getLogger()
+});
+```
+
+You can also simply pass the `console` to get all logs output to the stdout, including `debug` logs, like so:
+
+```typescript
+import { CacheFlow } from 'cache-flow';
+
+CacheFlow.configure({
+  logger: console
+});
+```
+
+### Detailed configuration
+
+1. `CacheLoader` constructor parameters:
+- `cacheId`: a unique string identifying each cache. If shared between 2 caches or more, their keys might conflict, and
+cause deserialization errors when trying to get a key stored by another cache.
+- `options`:
+    * `expirationTime`: the time in seconds during which cache entries will be retained before being evicted
+    * `maxSize`: the maximum number of entries stored in the cache when running in LRU mode. Once maximum is reached and
+                 a new entry is added to the cache, it replaces the least recently used.
+                 
+2. `CacheFlow.configure(configuration)` configuration object parameter:
+- `redis`:
+    * `host`: the Redis server hostname
+    * `port`: the Redis server port (default: 6379)
+    * `db`: the Redis database index to use (default: 0)
+- `logger`: a logger instance matching `LoggerInterface`
+
 ## Custom serialization/deserialization
 
 When extending `Cache`, you cache will come with default serialization and deserialization implementations for the 
@@ -114,8 +189,7 @@ class MyEntityCache extends CacheLoader<string, MyEntity> {
 
   constructor() {
     super('my-entity-cache', {
-      expirationTime: 3600,
-      maxSize: 3000
+      expirationTime: 3600 // 1h in seconds
     });
   }
 
@@ -149,32 +223,6 @@ class MyEntityCache extends CacheLoader<string, MyEntity> {
 }
 ```
 
-## Configure Redis
-
-**Cache Flow** also supports distributed caching by using Redis as the caching engine.
-To have your cache instances use Redis behind the scenes, **Cache Flow** must be configured as part of the startup of your application,
-before any cache is instantiated.
-
-```typescript
-import { CacheFlow } from 'cache-flow';
-
-CacheFlow.configure({
-  redis: {
-    host: 'your.redis.server.com',
-    port: 6379
-  }
-});
-
-// all set, now you can start caching!
-const cache = new SimpleCache();
-```
-
-But what if your Redis server has to restart or goes down? Don't worry, **Cache Flow** has got your covered!
-
-In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache, until
-your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This way, you
-will never experience any interruption in your caching layer.
-
 ## Use with dependency injection
 
 **Cache Flow** is compatible with your favorite Typescript DI framework, like [typedi](https://www.npmjs.com/package/typedi),
@@ -194,8 +242,7 @@ class UserCache extends CacheLoader<string, User> {
 
   constructor() {
     super('user-cache', {
-      expirationTime: 3600,
-      maxSize: 100
+      expirationTime: 3600 // 1h in seconds
     });
   }
 
@@ -206,32 +253,35 @@ class UserCache extends CacheLoader<string, User> {
 }
 ```
 
-## Custom Logger
+## CacheFlow Reference
 
-**Cache Flow** comes with a default logger which can log various information about what happens with your caches (when values are get, loaded, some errors, ...)
+### CacheLoader<K, V> methods
 
-By default, **Cache Flow** will only log errors to `console.error`, but you can provide your own logger in the initial configuration of the library, like [log4js](https://www.npmjs.com/package/log4js), [winston](https://www.npmjs.com/package/winston), ...
+[Full reference](./classes/cacheloader.html)
 
-See the example below with [log4js](https://www.npmjs.com/package/log4js):
+| Method | Example | Description |
+| --- | --- | --- |
+| `async get(key: K, force: boolean): Promise<V>` | `myCache.get('myKey')` | Gets a value from the cache. If force is set to true, a new value is loaded without checking existence in the cache. |
+| `async getWithMetadata(key: K, force: boolean): Promise<Metadata<V>>` | `myCache.get('myKey')` | Gets a value from the cache with additional metadata (loading time, caching status, ...). If force is set to true, a new value is loaded without checking existence in the cache. |
+| `async set(key: K, value: V): Promise<void>` | `myCache.set('myKey', 'myValue')` | Sets a value from the cache for the given key |
+| `async delete(key: K): Promise<void>` | `myCache.delete('myKey')` | Evicts a key from the cache |
+| `async exists(key: K): Promise<boolean>` | `myCache.exists('myKey')` | Checks whether a value exists in the cache for the given key |
+| `async reset(): Promise<void>` | `myCache.reset()` | Clears all values from the cache |
+| `getCacheId(): string` | myCache.getCacheId()` | Gets the cache's ID |
+| `getCacheDefinition(): CacheDefinition` | `myCache.getCacheDefinition()` | Gets the cache definition |
 
-```typescript
-import { CacheFlow } from 'cache-flow';
-import * as log4js from 'log4js';
+### CacheFlow methods
 
-CacheFlow.configure({
-  logger: log4js.getLogger()
-});
-```
+[Full reference](./classes/cacheflow.html)
 
-You can also simply pass the `console` to get all logs output to the stdout, including `debug` logs, like so:
-
-```typescript
-import { CacheFlow } from 'cache-flow';
-
-CacheFlow.configure({
-  logger: console
-});
-```
+| Method | Example | Description |
+| --- | --- | --- |
+| `static configure(configuration: CacheFlowConfiguration)` | `CacheFlow.configure({redis: {port: 1234}})` | Sets the global configuration for Cache Flow and all subsequently instantiated caches |
+| `static get(cacheId: string): Promise<CacheLoader<any, any>>` | `CacheFlow.get('my-cache')` | Gets cache with given cache ID |
+| `static async delete(cacheId: string, key: any): Promise<void>` | `CacheFlow.delete('my-cache', 'myKey')` | Deletes entry for given key in cache with given cache ID |
+| `static async reset(cacheId: string): Promise<void>` | `CacheFlow.reset('my-cache')` | Resets cache with given cache ID |
+| `static async resetAll(): Promise<void>` | `CacheFlow.resetAll()` | Clears all caches |
+| `static getInstances(): CacheLoader<any, any>[]` | `CacheFlow.getInstances()` | Gets all cache instances |
 
 # Project Information
 

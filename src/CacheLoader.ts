@@ -21,7 +21,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
    * * {Number} expirationTime: cache entries expiration time (seconds)
    * * {Number} maxSize: maximum number of cache entries
    */
-  protected constructor(cacheId: string, { expirationTime, maxSize = 10000 }: CacheOptions = {}) {
+  protected constructor(cacheId: string, { expirationTime, maxSize = 10000 }: CacheOptions = { expirationTime: 24 * 60 * 60 }) {
     this.cacheDefinition = {
       id: cacheId,
       options: {
@@ -56,51 +56,6 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
         });
       }
     }
-  }
-
-  protected abstract async load(key: K): Promise<V>;
-
-  protected keyToString(key: K): string {
-    if (typeof key === 'string') {
-      return key;
-    }
-    else {
-      throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
-    }
-  }
-
-  protected serialize(value: V): any {
-    let serializedValue;
-    if (typeof value === 'object' || Array.isArray(value)) {
-      serializedValue = { format: 'JSON', value: JSON.stringify(value) };
-    }
-    else {
-      serializedValue = value;
-    }
-    return serializedValue;
-  }
-
-  protected deserialize(value: any): V {
-    let unserializedValue;
-    if (value && value.format === 'JSON') {
-      unserializedValue = JSON.parse(value.value);
-    }
-    else {
-      unserializedValue = value;
-    }
-    return unserializedValue;
-  }
-
-  public getCacheId(): string {
-    return this.cacheDefinition.id;
-  }
-
-  public getCacheDefinition(): CacheDefinition {
-    return this.cacheDefinition;
-  }
-
-  protected addMetadata(metadata: CacheMetadata): void {
-    this.cacheDefinition.metadata = { ...this.cacheDefinition.metadata, ...metadata };
   }
 
   /**
@@ -232,6 +187,51 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
     }
   }
 
+  public getCacheId(): string {
+    return this.cacheDefinition.id;
+  }
+
+  public getCacheDefinition(): CacheDefinition {
+    return this.cacheDefinition;
+  }
+
+  protected abstract async load(key: K): Promise<V>;
+
+  protected keyToString(key: K): string {
+    if (typeof key === 'string') {
+      return key;
+    }
+    else {
+      throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
+    }
+  }
+
+  protected serialize(value: V): any {
+    let serializedValue;
+    if (typeof value === 'object' || Array.isArray(value)) {
+      serializedValue = { format: 'JSON', value: JSON.stringify(value) };
+    }
+    else {
+      serializedValue = value;
+    }
+    return serializedValue;
+  }
+
+  protected deserialize(value: any): V {
+    let unserializedValue;
+    if (value && value.format === 'JSON') {
+      unserializedValue = JSON.parse(value.value);
+    }
+    else {
+      unserializedValue = value;
+    }
+    return unserializedValue;
+  }
+
+  protected addMetadata(metadata: CacheMetadata): void {
+    this.cacheDefinition.metadata = { ...this.cacheDefinition.metadata, ...metadata };
+  }
+
   private async doLoadAndSet(key: K) {
     if (this.load) {
       this.logger.debug(`Loading value for key '${this.keyToString(key)}' into cache '${this.getCacheId()}'`);
@@ -258,7 +258,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
 }
 
 export interface CacheOptions {
-  expirationTime?: number;
+  expirationTime: number;
   maxSize?: number;
 }
 

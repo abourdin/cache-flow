@@ -27,13 +27,13 @@ export class CacheFlow {
     return this.configuration.logger;
   }
 
-  public static async resetAll() {
+  public static async resetAll(): Promise<void> {
     for (const cache of Array.from(this.instances.values())) {
       await cache.reset();
     }
   }
 
-  public static get(cacheId: string) {
+  public static get(cacheId: string): CacheLoader<any, any> {
     return this.instances.get(cacheId);
   }
 
@@ -44,7 +44,7 @@ export class CacheFlow {
     }
   }
 
-  public static async reset(cacheId: string) {
+  public static async reset(cacheId: string): Promise<void> {
     const cache = this.get(cacheId);
     if (cache) {
       await cache.reset();
