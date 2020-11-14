@@ -39,13 +39,13 @@ jobs:
           name: Update npm
           command: sudo npm install -g npm@latest
       - restore_cache:
-          key: dependency-cache-v1-{{ checksum "package.json" }}
+          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
       - run:
           name: Install dependencies
           command: |
             npm install
       - save_cache:
-          key: dependency-cache-v1-{{ checksum "package.json" }}
+          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
             - ./node_modules
 
@@ -55,17 +55,21 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-v1-{{ checksum "package.json" }}
+          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
       - run:
           name: Build Project
           command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./*
   test:
     docker:
       - image: cimg/node:12.18.3
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-v1-{{ checksum "package.json" }}
+          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
       - run:
           name: Install Redis
           command: |
@@ -88,15 +92,19 @@ jobs:
     docker:
       - image: cimg/node:12.18.3
     steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-v1-{{ checksum "package.json" }}
+      - attach_workspace:
+          at: .
+      - run:
+          name: Package Project
+          command: npm run package
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > build/package/.npmrc
       - run:
           name: Publish Project
-          command: npm publish
+          command: |
+            cd build/package
+            npm publish
 
 workflows:
   build-test:

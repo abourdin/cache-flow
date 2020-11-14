@@ -59,11 +59,11 @@ console.log(myValue);
 
 3. What happened behind the scenes
 
-Unlike lots of cache libraries, with **Cache Flow** don't need to manually check if a key exists in your cache before trying to get it, and then set the value yourself.
+Unlike lots of cache libraries, with **Cache Flow**, you don't need to manually check if a key exists in your cache before trying to get it, and set the value yourself afterwards.
 
-When you call `get` function of your cache, **Cache Flow** takes automatically care of calling the load function your defined for your cache, and stores the value for later.
+When you call the `get` function of your cache, **Cache Flow** automatically takes care of calling the load function your previously defined, and stores the value for a later call.
 
-So if you call `get` right after giving the same key, it will bypass the loader function, and directly pull the value from the inner cache.
+So if you call `get` right after, giving the same key, it will bypass the loader function, and directly pull the value from the inner cache.
 
 ### A more advanced example
 
