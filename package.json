@@ -27,11 +27,9 @@
   "main": "index.js",
   "types": "index.d.ts",
   "dependencies": {
-    "async-redis": "^1.1.7",
     "date-fns": "^2.16.1",
     "ioredis": "^4.19.2",
     "lru-cache-for-clusters-as-promised": "^1.5.24",
-    "redis": "^3.0.2",
     "typescript": "^4.0.5"
   },
   "devDependencies": {
