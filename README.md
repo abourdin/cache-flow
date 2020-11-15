@@ -1,7 +1,7 @@
 # Cache Flow
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)](#)
-[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://img.shields.io/badge/License-ISC-yellow.svg)
+[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](#)
 
 | Branch | CI Status | Coverage |
 | --- | --- | --- |
@@ -14,6 +14,7 @@
 * [Usage Example](#usage-example)
     - [A first simple cache](#a-first-simple-cache)
     - [A more advanced example](#a-more-advanced-example)
+    - [More examples](#more-examples)
 * [Configuration](#configuration)
     - [Configure Redis](#configure-redis)
     - [Custom logger](#custom-logger)
@@ -34,12 +35,14 @@ npm install --save cache-flow
 
 ### A first simple cache
 
-1. Create a cache `SimpleCache.ts`
+1. **Create a cache `SimpleCache.ts`**
+
+1.a. **Typescript example:**
 
 ```typescript
 import { CacheLoader } from 'cache-flow';
 
-class StringStringCache extends CacheLoader<string, string> {
+class SimpleCache extends CacheLoader<string, string> {
 
   constructor() {
     super('simple-cache-1', {
@@ -54,16 +57,49 @@ class StringStringCache extends CacheLoader<string, string> {
 
 }
 ```
+_Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/SimpleCache.ts)_
 
-2. Use your cache
+1.b. **ES6 Javascript example:**
+
+Even though it does not provide all the genericity **Cache Flow** comes with when used in a Typescript environment,
+native javascript is also completely supported:
+
+```javascript
+import { CacheLoader } from 'cache-flow';
+// also works with
+// const { CacheLoader } = require('cache-flow');
+
+class ES6ExampleCache extends CacheLoader {
+
+  constructor() {
+    super('es6-example-cache', {
+      expirationTime: 3600 // 1h in seconds
+    });
+  }
+
+
+  load(key) {
+    const now = new Date();
+    return key + '-' + now.getTime();
+  }
+
+}
+```
+_Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/ES6ExampleCache.ts)_
+
+2. **Use your cache**
 
 ```typescript
 const cache = new SimpleCache();
 const myValue = cache.get('myKey');
-console.log(myValue);
+setTimeout(function(){ 
+    const myValue2 = cache.get('myKey');
+    console.log(myValue);
+    console.log(myValue2); // myValue2 has the same value as myValue!
+}, 3000);
 ```
 
-3. What happened behind the scenes
+3. **What happened behind the scenes**
 
 Unlike lots of cache libraries, with **Cache Flow**, you don't need to manually check if a key exists in your cache before trying to get it, and set the value yourself afterwards.
 
@@ -93,6 +129,7 @@ class UserProfileCache extends CacheLoader<User, UserProfile> {
 
 }
 ```
+_Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/ObjectStringCache.ts)_
 
 **Cache Flow** allows you to define caches with more complex keys and values, which can be objects, arrays, ...
 
@@ -102,6 +139,11 @@ protected keyToString(channel: Channel): string {
   return `${channel.code}-${channel.language}`;
 }
 ```
+
+### More examples
+
+You can find more examples in the `examples` folder of the source repository:
+https://github.com/abourdin/cache-flow/tree/master/examples
 
 ## Configuration
 
@@ -252,12 +294,15 @@ class UserCache extends CacheLoader<string, User> {
 
 }
 ```
+_Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/DIExampleCache.ts)_
 
 ## CacheFlow Reference
 
+[Full reference](https://abourdin.github.io/cache-flow/modules.html)
+
 ### CacheLoader<K, V> methods
 
-[Full reference](./classes/cacheloader.html)
+[Full reference](https://abourdin.github.io/cache-flow/classes/cacheloader.html)
 
 | Method | Example | Description |
 | --- | --- | --- |
@@ -272,7 +317,7 @@ class UserCache extends CacheLoader<string, User> {
 
 ### CacheFlow methods
 
-[Full reference](./classes/cacheflow.html)
+[Full reference](https://abourdin.github.io/cache-flow/classes/cacheflow.html)
 
 | Method | Example | Description |
 | --- | --- | --- |

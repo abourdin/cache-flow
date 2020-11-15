@@ -1,9 +1,9 @@
 import { CacheLoader } from '../src';
 
-export default class StringStringCache extends CacheLoader<string, string> {
+export default class SimpleCache extends CacheLoader<string, string> {
 
   constructor() {
-    super('simple-cache-1', {
+    super('simple-cache', {
       expirationTime: 3600,
       maxSize: 20
     });

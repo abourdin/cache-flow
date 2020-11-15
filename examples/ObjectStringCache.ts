@@ -8,7 +8,7 @@ class User {
 export default class ObjectStringCache extends CacheLoader<User, string> {
 
   constructor() {
-    super('simple-cache-2', {
+    super('object-string-cache', {
       expirationTime: 3600,
       maxSize: 20
     });

@@ -1,13 +1,36 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
-import StringStringCache from '../examples/StringStringCache';
+import * as log4js from 'log4js';
+import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
-import { sleep } from './utils/TestUtils';
 
-describe('BaseCache Test', () => {
+const logger = log4js.getLogger();
+logger.level = 'debug';
+log4js.configure({
+  appenders: {
+    out: {
+      type: 'stdout',
+      layout: {
+        type: 'pattern',
+        pattern: '%[[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%f{1}]:%] %m'
+      }
+    }
+  },
+  categories: {
+    default: {
+      appenders: ['out'],
+      level: 'debug',
+      enableCallStack: true
+    }
+  }
+});
+
+describe('CacheLoader Test', () => {
 
   before(async function () {
-    CacheFlow.configure({});
+    CacheFlow.configure({
+      logger: logger
+    });
   });
 
   after(async function () {
@@ -15,23 +38,13 @@ describe('BaseCache Test', () => {
   });
 
   it('test should check basic cache functions', async () => {
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
     const value1 = await cache1.get('foo');
     const value2 = await cache1.get('foo');
     assert.equal(value1, value2);
 
     const value3 = await cache1.getWithMetadata('foo');
     assert.equal(value1, value3.value);
-
-    await sleep(100);
-
-    const value4 = await cache1.get('foo', true);
-    assert.notEqual(value1, value4);
-
-    await sleep(100);
-
-    const value5 = await cache1.getWithMetadata('foo', true);
-    assert.notEqual(value4, value5.value);
 
     assert.isTrue(await cache1.exists('foo'));
 
@@ -46,12 +59,15 @@ describe('BaseCache Test', () => {
     await cache1.set('baz', 'my-value');
     assert.equal('my-value', await cache1.get('baz'));
 
-    await cache1.reset();
+    const value5 = await CacheFlow.get('simple-cache').get('baz');
+    assert.equal('my-value', value5);
+
+    await CacheFlow.reset('simple-cache');
     assert.isFalse(await cache1.exists('foo'));
   });
 
   it('test should get errors when giving wrong key input', async () => {
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
     try {
       await cache1.get(undefined);
       fail('should have thrown an error when getting undefined key');
