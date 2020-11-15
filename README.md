@@ -296,6 +296,11 @@ class UserCache extends CacheLoader<string, User> {
 ```
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/DIExampleCache.ts)_
 
+## Notes
+- LRU cache implementation used by **Cache Flow** supports using [cluster](https://www.npmjs.com/package/cluster),
+so if running in cluster mode, your caches will be shared by all workers. Only requirement is that `CacheFlow.configure`
+method must be called from the master thread. In environment not running cluster, a standard LRU cache is used.
+
 ## CacheFlow Reference
 
 [Full reference](https://abourdin.github.io/cache-flow/modules.html)

@@ -1,3 +1,4 @@
+import LRUCache from 'lru-cache-for-clusters-as-promised';
 import { CacheLoader } from './CacheLoader';
 import { CacheFlowConfiguration, DefaultLogger, LoggerInterface, RedisCacheConfiguration } from './config/CacheFlowConfiguration';
 
@@ -9,6 +10,8 @@ export class CacheFlow {
   };
 
   public static configure(configuration: CacheFlowConfiguration) {
+    LRUCache.init();
+
     this.configuration = { ...this.configuration, ...configuration };
     if (!configuration.logger) {
       this.configuration.logger = new DefaultLogger();
