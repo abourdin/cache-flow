@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import StringStringCache from '../examples/StringStringCache';
+import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
 
@@ -28,7 +28,7 @@ describe('RedisOfflineBaseCache Test', () => {
   it('test should fallback to LRU cache when redis server is offline', async function () {
     this.timeout(0);
 
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
 
     await sleep(500); // waiting for Cache to connect to Redis
 

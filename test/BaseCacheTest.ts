@@ -1,7 +1,7 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
 import * as log4js from 'log4js';
-import StringStringCache from '../examples/StringStringCache';
+import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
 
 const logger = log4js.getLogger();
@@ -38,7 +38,7 @@ describe('BaseCache Test', () => {
   });
 
   it('test should check basic cache functions', async () => {
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
     const value1 = await cache1.get('foo');
     const value2 = await cache1.get('foo');
     assert.equal(value1, value2);
@@ -67,7 +67,7 @@ describe('BaseCache Test', () => {
   });
 
   it('test should get errors when giving wrong key input', async () => {
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
     try {
       await cache1.get(undefined);
       fail('should have thrown an error when getting undefined key');

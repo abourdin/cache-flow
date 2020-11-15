@@ -1,6 +1,6 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
-import StringStringCache from '../examples/StringStringCache';
+import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
 
@@ -35,7 +35,7 @@ describe('RedisBaseCache Test', () => {
   it('test should check basic cache functions over a Redis server', async function () {
     this.timeout(0);
 
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
 
     await sleep(500); // waiting for Cache to connect to Redis
 
@@ -75,7 +75,7 @@ describe('RedisBaseCache Test', () => {
   });
 
   it('test should get errors when giving wrong key input over Redis server', async () => {
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
     try {
       await cache1.get('test');
       fail('should have thrown an error when getting undefined key');

@@ -39,7 +39,7 @@ npm install --save cache-flow
 ```typescript
 import { CacheLoader } from 'cache-flow';
 
-class StringStringCache extends CacheLoader<string, string> {
+class SimpleCache extends CacheLoader<string, string> {
 
   constructor() {
     super('simple-cache-1', {

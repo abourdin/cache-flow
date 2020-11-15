@@ -1,7 +1,7 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
 import ObjectStringCache from '../examples/ObjectStringCache';
-import StringStringCache from '../examples/StringStringCache';
+import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
 
 describe('ObjectStringCache Test', () => {
@@ -44,7 +44,7 @@ describe('ObjectStringCache Test', () => {
   });
 
   it('test should get errors when giving wrong key input', async () => {
-    const cache1 = new StringStringCache();
+    const cache1 = new SimpleCache();
     try {
       await cache1.get(undefined);
       fail('should have thrown an error when getting undefined key');
