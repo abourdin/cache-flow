@@ -25,7 +25,7 @@ log4js.configure({
   }
 });
 
-describe('BaseCache Test', () => {
+describe('CacheLoader Test', () => {
 
   before(async function () {
     CacheFlow.configure({
@@ -59,10 +59,10 @@ describe('BaseCache Test', () => {
     await cache1.set('baz', 'my-value');
     assert.equal('my-value', await cache1.get('baz'));
 
-    const value5 = await CacheFlow.get('simple-cache-1').get('baz');
+    const value5 = await CacheFlow.get('simple-cache').get('baz');
     assert.equal('my-value', value5);
 
-    await CacheFlow.reset('simple-cache-1');
+    await CacheFlow.reset('simple-cache');
     assert.isFalse(await cache1.exists('foo'));
   });
 
