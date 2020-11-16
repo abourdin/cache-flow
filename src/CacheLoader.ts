@@ -10,8 +10,10 @@ import { redisClientProvider } from './redis/RedisClientProvider';
  */
 export abstract class CacheLoader<K extends Object, V extends Object> {
   private readonly cacheDefinition: CacheDefinition;
+  private readonly cacheOptions: CacheOptions;
   private readonly logger: LoggerInterface;
   private delegate: LRUCache | RedisCache;
+  private mode: 'LRU' | 'REDIS';
 
   /**
    * Constructor.
@@ -30,30 +32,36 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
       },
       metadata: {}
     };
+    this.cacheOptions = { expirationTime, maxSize };
     this.logger = CacheFlow.getLogger();
     CacheFlow.addInstance(cacheId, this);
 
-    this.delegate = new LRUCache(cacheId, { expirationTime, maxSize });
+    this.switchToLRUMode();
 
     if (CacheFlow.isRedisConfigured()) {
       const redisClient = redisClientProvider.getRedisClient();
-      if (redisClient) {
-        const self = this;
-        redisClient.on('ready', function () {
-          self.logger.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis Cache`);
-          self.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
-        });
-        redisClient.on('error', function (error: { code: string; message: string }) {
+
+      const self = this;
+      redisClient.on('ready', function () {
+        self.logger.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis`);
+        self.switchToRedisMode();
+      });
+      redisClient.on('error', function (error: { code: string; message: string }) {
+        if (self.mode === 'REDIS') {
           if (error.code === 'ECONNREFUSED') {
-            if (self.delegate instanceof RedisCache) {
-              self.logger.error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory cache: `, error.message);
-              self.delegate = new LRUCache(cacheId, { expirationTime: expirationTime, maxSize });
-            }
+            self.logger.error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory LRU cache: `, error.message);
+            self.switchToLRUMode();
           }
           else if (error.code === 'ECONNRESET') {
-            self.logger.error(`Error connecting to Redis cache: `, error.message);
+            self.logger.error(`Error connecting to Redis: `, error.message);
+            self.switchToLRUMode();
           }
-        });
+        }
+      });
+
+      if (redisClient.status === 'ready') {
+        this.logger.debug(`Successfully connected to Redis server, '${cacheId}' is now using Redis`);
+        this.switchToRedisMode();
       }
     }
   }
@@ -253,6 +261,20 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
     }
     else {
       throw new Error(`Cache '${this.getCacheId()}' must implement a load function`);
+    }
+  }
+
+  private switchToLRUMode(): void {
+    if (this.mode !== 'LRU') {
+      this.mode = 'LRU';
+      this.delegate = new LRUCache(this.getCacheId(), this.cacheOptions);
+    }
+  }
+
+  private switchToRedisMode(): void {
+    if (this.mode !== 'REDIS') {
+      this.mode = 'REDIS';
+      this.delegate = new RedisCache(this.getCacheId(), this.cacheOptions);
     }
   }
 }

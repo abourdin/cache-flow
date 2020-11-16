@@ -15,7 +15,7 @@ export class LRUCache {
    * * {Number} expirationTime: cache entries maximum age (seconds)
    * * {Number} maxSize: maximum number of cache entries
    */
-  constructor(cacheId: string, { expirationTime, maxSize }: { expirationTime: number; maxSize: number }) {
+  constructor(cacheId: string, { expirationTime, maxSize = 1000 }: { expirationTime: number; maxSize?: number }) {
     this.cacheId = cacheId;
     this.cache = new LRUClusterCache({
       namespace: cacheId || 'default-cache',
