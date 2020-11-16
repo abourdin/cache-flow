@@ -209,6 +209,9 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
     if (typeof key === 'string') {
       return key;
     }
+    else if (typeof key === 'number') {
+      return key.toString();
+    }
     else {
       throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
     }
@@ -243,21 +246,23 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
   private async doLoadAndSet(key: K) {
     if (this.load) {
       this.logger.debug(`Loading value for key '${this.keyToString(key)}' into cache '${this.getCacheId()}'`);
+      let value;
       try {
-        const value = await this.load(key);
-        if (key !== undefined && value !== undefined) {
-          try {
-            await this.set(key, value);
-          }
-          catch (error) {
-            throw new Error(`Failed to set value in cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
-          }
-        }
-        return value;
+        value = await this.load(key);
       }
       catch (error) {
-        throw new Error(`Failed to load value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
+        this.logger.error(`Failed to load value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
+        throw error;
       }
+      if (key !== undefined && value !== undefined) {
+        try {
+          await this.set(key, value);
+        }
+        catch (error) {
+          throw new Error(`Failed to set value in cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
+        }
+      }
+      return value;
     }
     else {
       throw new Error(`Cache '${this.getCacheId()}' must implement a load function`);
