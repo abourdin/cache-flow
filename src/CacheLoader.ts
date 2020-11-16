@@ -209,6 +209,9 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
     if (typeof key === 'string') {
       return key;
     }
+    else if (typeof key === 'number') {
+      return key.toString();
+    }
     else {
       throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
     }
