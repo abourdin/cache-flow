@@ -1,3 +1,4 @@
+import * as cluster from 'cluster';
 import LRUCache from 'lru-cache-for-clusters-as-promised';
 import { CacheLoader } from './CacheLoader';
 import { CacheFlowConfiguration, DefaultLogger, LoggerInterface, RedisCacheConfiguration } from './config/CacheFlowConfiguration';
@@ -10,7 +11,9 @@ export class CacheFlow {
   };
 
   public static configure(configuration: CacheFlowConfiguration) {
-    LRUCache.init();
+    if (cluster.isMaster) {
+      LRUCache.init();
+    }
 
     this.configuration = { ...this.configuration, ...configuration };
     if (!configuration.logger) {

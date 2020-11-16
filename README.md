@@ -1,12 +1,11 @@
 # Cache Flow
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)](#)
+[![Version](https://img.shields.io/npm/v/cache-flow.svg?style=flat)](#)
 [![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](#)
-
-| Branch | CI Status | Coverage |
-| --- | --- | --- |
-| develop | [![develop CI Status](https://circleci.com/gh/abourdin/cache-flow/tree/develop.svg?style=shield)](https://app.circleci.com/pipelines/github/abourdin/cache-flow?branch=develop) | [![develop Coverage Status](https://codecov.io/github/abourdin/cache-flow/coverage.svg?branch=develop)](https://codecov.io/gh/abourdin/cache-flow/branch/develop) |
-| master | [![master CI Status](https://circleci.com/gh/abourdin/cache-flow/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/abourdin/cache-flow?branch=master) | [![master Coverage Status](https://codecov.io/github/abourdin/cache-flow/coverage.svg?branch=master)](https://codecov.io/gh/abourdin/cache-flow/branch/master) |
+[![master CI Status](https://circleci.com/gh/abourdin/cache-flow/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/abourdin/cache-flow?branch=master)
+[![master Coverage Status](https://codecov.io/github/abourdin/cache-flow/coverage.svg?branch=master)](https://codecov.io/gh/abourdin/cache-flow/branch/master)
+[![GitHub last commit](https://img.shields.io/github/last-commit/abourdin/cache-flow.svg?style=flat)](#)
+[![NPM Downloads](https://img.shields.io/npm/dt/cache-flow.svg?style=flat)](#)
 
 # Table of Contents
 
@@ -37,7 +36,7 @@ npm install --save cache-flow
 
 1. **Create a cache `SimpleCache.ts`**
 
-1.a. **Typescript example:**
+- 1.a. **Typescript example:**
 
 ```typescript
 import { CacheLoader } from 'cache-flow';
@@ -59,7 +58,7 @@ class SimpleCache extends CacheLoader<string, string> {
 ```
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/SimpleCache.ts)_
 
-1.b. **ES6 Javascript example:**
+- 1.b. **ES6 Javascript example:**
 
 Even though it does not provide all the genericity **Cache Flow** comes with when used in a Typescript environment,
 native javascript is also completely supported:
