@@ -26,7 +26,7 @@ jobs:
             # prepare development branch
             git fetch
             git checkout develop
-            npm version minor -m "Prepared branch for development: %s [skip ci]"
+            npm version minor -m "Prepared branch for next development iteration"
             git push origin develop
             git checkout -
 

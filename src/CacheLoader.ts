@@ -37,24 +37,27 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
 
     if (CacheFlow.isRedisConfigured()) {
       const redisClient = redisClientProvider.getRedisClient();
-      if (redisClient) {
-        const self = this;
-        redisClient.on('ready', function () {
-          self.logger.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis Cache`);
-          self.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
-        });
-        redisClient.on('error', function (error: { code: string; message: string }) {
-          if (error.code === 'ECONNREFUSED') {
-            if (self.delegate instanceof RedisCache) {
-              self.logger.error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory cache: `, error.message);
-              self.delegate = new LRUCache(cacheId, { expirationTime: expirationTime, maxSize });
-            }
-          }
-          else if (error.code === 'ECONNRESET') {
-            self.logger.error(`Error connecting to Redis cache: `, error.message);
-          }
-        });
+      if (redisClient.status === 'ready') {
+        this.logger.debug(`Successfully connected to Redis server, '${cacheId}' is now using Redis`);
+        this.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
       }
+
+      const self = this;
+      redisClient.on('ready', function () {
+        self.logger.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis`);
+        self.delegate = new RedisCache(cacheId, { expirationTime: expirationTime });
+      });
+      redisClient.on('error', function (error: { code: string; message: string }) {
+        if (error.code === 'ECONNREFUSED') {
+          if (self.delegate instanceof RedisCache) {
+            self.logger.error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory LRU cache: `, error.message);
+            self.delegate = new LRUCache(cacheId, { expirationTime: expirationTime, maxSize });
+          }
+        }
+        else if (error.code === 'ECONNRESET') {
+          self.logger.error(`Error connecting to Redis: `, error.message);
+        }
+      });
     }
   }
 
