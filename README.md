@@ -36,7 +36,7 @@ npm install --save cache-flow
 
 1. **Create a cache `SimpleCache.ts`**
 
-- 1.a. **Typescript example:**
+1.a. **Typescript example:**
 
 ```typescript
 import { CacheLoader } from 'cache-flow';
@@ -58,7 +58,7 @@ class SimpleCache extends CacheLoader<string, string> {
 ```
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/SimpleCache.ts)_
 
-- 1.b. **ES6 Javascript example:**
+1.b. **ES6 Javascript example:**
 
 Even though it does not provide all the genericity **Cache Flow** comes with when used in a Typescript environment,
 native javascript is also completely supported:
@@ -134,8 +134,36 @@ _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/
 
 These caches require you to implement a `keyToString` function, transforming your key into a unique string identifying your key. It can be as simple as an ID, or a combination of several parameters that define your key, like:
 ```typescript
-protected keyToString(channel: Channel): string {
-  return `${channel.code}-${channel.language}`;
+protected keyToString(identifier: Identifier): string {
+  return `${identifier.code}-${identifier.language}`;
+}
+```
+
+This way, you can define your own cache key structures:
+```typescript
+class CustomCache extends CacheLoader<MyCacheKey, CachedObject> {
+
+  constructor() {
+    super('custom-cache-key', {
+      expirationTime: 3600 // 1h in seconds
+    });
+  }
+
+  protected async load(key: MyCacheKey): Promise<CachedObject> {
+    const result = await doSomething(key);
+    return result;
+  }
+  
+  protected keyToString(key: MyCacheKey): string {
+    return `${key.id}-${key.someField}-${key.someOtherField}`;
+  }
+
+}
+
+interface MyCacheKey {
+  id: string;
+  someField: string;
+  someOtherField: number;
 }
 ```
 
@@ -166,7 +194,7 @@ CacheFlow.configure({
 const cache = new SimpleCache();
 ```
 
-But what if your Redis server has to restart or goes down? Don't worry, **Cache Flow** has got your covered!
+But what if your Redis server has to restart or goes down? Don't worry, **Cache Flow** has got you covered!
 
 In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache, until
 your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This way, you
