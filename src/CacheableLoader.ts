@@ -4,7 +4,7 @@ import { CacheFlow } from './CacheFlow';
 /**
  * Cache class allowing to create caches with automatic cache loading and delegates.
  */
-export abstract class CacheLoader<K extends Object, V extends Object> extends BaseCacheLoader<K, V> {
+export abstract class CacheableLoader<K extends Object, V extends Object> extends BaseCacheLoader<K, V> {
 
   /**
    * Constructor.
@@ -14,7 +14,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> extends Ba
    */
   protected constructor(cacheId: string, options: CacheOptions = {}) {
     super(cacheId, options);
-    this.isCacheable = false;
+    this.isCacheable = true;
     CacheFlow.addInstance(cacheId, this);
   }
 

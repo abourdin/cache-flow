@@ -1,5 +1,5 @@
 import LRUClusterCache from 'lru-cache-for-clusters-as-promised';
-import { CacheOptions } from '../../CacheLoader';
+import { CacheOptions } from '../../BaseCacheLoader';
 
 /**
  * Cache class allowing to bind an in-memory LRU Cache.

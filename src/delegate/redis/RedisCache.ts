@@ -1,6 +1,6 @@
 import IORedis from 'ioredis';
+import { CacheOptions } from '../../BaseCacheLoader';
 import { CacheFlow } from '../../CacheFlow';
-import { CacheOptions } from '../../CacheLoader';
 import { LoggerInterface } from '../../config/CacheFlowConfiguration';
 import { redisClientProvider } from '../../redis/RedisClientProvider';
 
