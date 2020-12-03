@@ -46,11 +46,13 @@ export class CacheFlow {
 
   public static async delete(cacheId: string, key: any): Promise<void> {
     const cache = this.instances.get(cacheId);
-    if ((cache as any).isCacheable) {
-      await cache.delete({ args: key });
-    }
-    else {
-      await cache.delete(key);
+    if (cache) {
+      if ((cache as any).isCacheable) {
+        await cache.delete({ args: key });
+      }
+      else {
+        await cache.delete(key);
+      }
     }
   }
 
