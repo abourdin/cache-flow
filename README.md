@@ -13,6 +13,7 @@
 * [Usage Example](#usage-example)
     - [A first simple cache](#a-first-simple-cache)
     - [A more advanced example](#a-more-advanced-example)
+    - [Using @Cacheable Typescript decorator](#using-cacheable-typescript-decorator)
     - [More examples](#more-examples)
 * [Configuration](#configuration)
     - [Configure Redis](#configure-redis)
@@ -165,6 +166,51 @@ interface MyCacheKey {
   someField: string;
   someOtherField: number;
 }
+```
+
+### Using @Cacheable Typescript decorator
+
+When using Typescript, you have access to a powerful shortcut to caching: you can annotate your class method with `@Cacheable`.
+This automatically wraps your method call with a caching layer, meaning that when calling your method, **Cache Flow**
+will take care of checking for an existing cached value, and otherwise will execute the method to get one.
+This makes adding a cache completely transparent for anyone calling this method, without any other required change than annotating
+your method with the `@Cacheable` decorator.
+
+Here is an example:
+```typescript
+class CacheableExampleClass {
+
+  private readonly id: string;
+
+  constructor(id: string) {
+    this.id = id;
+  }
+
+  @Cacheable()
+  public async getResult(prefix: string, value: number): Promise<string> {
+    await sleep(100);
+    const now = new Date();
+    return `${this.id}-${prefix}-${now.getTime()}${now.getMilliseconds()}-${value * 3}`;
+  }
+
+}
+```
+
+_Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/CacheableExampleClass.ts)_
+
+`@Cacheable` provides the same flexibility as manually declaring a class cache: you can configure the `cacheId`,
+`expirationTime` and `maxSize` parameters, as well as the `keyToString`, `serialize` and `deserialize` functions (see documentation below).
+
+By default, `@Cacheable` will use `JSON.stringify` on the array of arguments to create a cache key. In cases where you have more complex objects
+as your cache key, you can define a custom way of inferring the cache key from arguments:
+
+```typescript
+@Cacheable({
+  keyToString: (user: User) => user.id,
+  options: {
+    expirationTime: 3600
+  } 
+})
 ```
 
 ### More examples

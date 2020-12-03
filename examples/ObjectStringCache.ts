@@ -1,4 +1,5 @@
 import { CacheLoader } from '../src';
+import { sleep } from '../test/utils/TestUtils';
 
 class User {
   id: string;
@@ -15,6 +16,7 @@ export default class ObjectStringCache extends CacheLoader<User, string> {
   }
 
   protected async load(user: User): Promise<string> {
+    await sleep(100);
     const now = new Date();
     return user.username + '-' + now.getTime() + now.getMilliseconds();
   }

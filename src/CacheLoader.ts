@@ -23,7 +23,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
    * * {Number} expirationTime: cache entries expiration time (seconds)
    * * {Number} maxSize: maximum number of cache entries
    */
-  protected constructor(cacheId: string, { expirationTime, maxSize = 10000 }: CacheOptions = { expirationTime: 24 * 60 * 60 }) {
+  protected constructor(cacheId: string, { expirationTime = 3600, maxSize = 10000 }: CacheOptions = { expirationTime: 24 * 60 * 60 }) {
     this.cacheDefinition = {
       id: cacheId,
       options: {
@@ -285,7 +285,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
 }
 
 export interface CacheOptions {
-  expirationTime: number;
+  expirationTime?: number;
   maxSize?: number;
 }
 

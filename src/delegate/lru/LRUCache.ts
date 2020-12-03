@@ -1,4 +1,5 @@
 import LRUClusterCache from 'lru-cache-for-clusters-as-promised';
+import { CacheOptions } from '../../CacheLoader';
 
 /**
  * Cache class allowing to bind an in-memory LRU Cache.
@@ -15,7 +16,7 @@ export class LRUCache {
    * * {Number} expirationTime: cache entries maximum age (seconds)
    * * {Number} maxSize: maximum number of cache entries
    */
-  constructor(cacheId: string, { expirationTime, maxSize = 1000 }: { expirationTime: number; maxSize?: number }) {
+  constructor(cacheId: string, { expirationTime, maxSize = 1000 }: CacheOptions) {
     this.cacheId = cacheId;
     this.cache = new LRUClusterCache({
       namespace: cacheId || 'default-cache',
