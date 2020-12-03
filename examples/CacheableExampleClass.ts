@@ -10,7 +10,9 @@ export class CacheableExampleClass {
   }
 
   @Cacheable({
-    keyToString: (prefix: string, value: number) => `${prefix}-${value}`,
+    keyToString: (prefix: string, value: number) => {
+      return `${prefix}-${value}`;
+    },
     options: {
       expirationTime: 3600
     }

@@ -44,7 +44,7 @@ export class CacheFlow {
     return this.nonCacheableInstances.get(cacheId);
   }
 
-  public static async delete(cacheId: string, key: any): Promise<void> {
+  public static async delete(cacheId: string, ...key: any[]): Promise<void> {
     const cache = this.instances.get(cacheId);
     if (cache) {
       if ((cache as any).isCacheable) {
