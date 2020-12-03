@@ -1,7 +1,7 @@
 import { CacheOptions } from '../BaseCacheLoader';
 import { CacheableLoader } from '../CacheableLoader';
 
-export function Cacheable({ cacheId, options: { expirationTime, maxSize }, keyToString, serialize, deserialize }: CacheableParams = {}) {
+export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, keyToString, serialize, deserialize }: CacheableParams = {}) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     if (descriptor === undefined) {
       descriptor = Object.getOwnPropertyDescriptor(target, propertyKey);
