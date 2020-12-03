@@ -1,29 +1,10 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
-import * as log4js from 'log4js';
 import ErrorThrowingCache from '../examples/ErrorThrowingCache';
 import { CacheFlow } from '../src';
+import { configureLogger } from './utils/TestUtils';
 
-const logger = log4js.getLogger();
-logger.level = 'debug';
-log4js.configure({
-  appenders: {
-    out: {
-      type: 'stdout',
-      layout: {
-        type: 'pattern',
-        pattern: '%[[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%f{1}]:%] %m'
-      }
-    }
-  },
-  categories: {
-    default: {
-      appenders: ['out'],
-      level: 'debug',
-      enableCallStack: true
-    }
-  }
-});
+const logger = configureLogger();
 
 describe('CacheLoader Error Test', () => {
 

@@ -1,4 +1,5 @@
 import { CacheLoader } from '../src';
+import { sleep } from '../test/utils/TestUtils';
 
 export default class SimpleCache extends CacheLoader<string, string> {
 
@@ -10,6 +11,7 @@ export default class SimpleCache extends CacheLoader<string, string> {
   }
 
   protected async load(key: string): Promise<string> {
+    await sleep(100);
     const now = new Date();
     return key + '-' + now.getTime() + now.getMilliseconds();
   }
