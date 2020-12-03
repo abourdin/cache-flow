@@ -5,6 +5,7 @@ import { CacheFlowConfiguration, DefaultLogger, LoggerInterface, RedisCacheConfi
 
 export class CacheFlow {
   private static readonly instances: Map<string, CacheLoader<any, any>> = new Map();
+  private static readonly nonCacheableInstances: Map<string, CacheLoader<any, any>> = new Map();
 
   private static configuration: CacheFlowConfiguration = {
     logger: new DefaultLogger()
@@ -40,12 +41,15 @@ export class CacheFlow {
   }
 
   public static get(cacheId: string): CacheLoader<any, any> {
-    return this.instances.get(cacheId);
+    return this.nonCacheableInstances.get(cacheId);
   }
 
   public static async delete(cacheId: string, key: any): Promise<void> {
     const cache = this.get(cacheId);
-    if (cache) {
+    if (cache.isCacheable) {
+      await cache.delete({ args: key });
+    }
+    else {
       await cache.delete(key);
     }
   }
@@ -58,11 +62,15 @@ export class CacheFlow {
   }
 
   public static getInstances(): CacheLoader<any, any>[] {
-    return Array.from(this.instances.values());
+    return Array.from(this.nonCacheableInstances.values());
   }
 
   public static addInstance(cacheId: string, cache: CacheLoader<any, any>): void {
     this.instances.set(cacheId, cache);
+    if (!cache.isCacheable) {
+      this.nonCacheableInstances.set(cacheId, cache);
+    }
   }
+
 }
 

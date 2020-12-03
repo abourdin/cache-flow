@@ -14,6 +14,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
   private readonly logger: LoggerInterface;
   private delegate: LRUCache | RedisCache;
   private mode: 'LRU' | 'REDIS';
+  public isCacheable: boolean;
 
   /**
    * Constructor.
@@ -23,7 +24,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
    * * {Number} expirationTime: cache entries expiration time (seconds)
    * * {Number} maxSize: maximum number of cache entries
    */
-  protected constructor(cacheId: string, { expirationTime = 3600, maxSize = 10000 }: CacheOptions = { expirationTime: 24 * 60 * 60 }) {
+  protected constructor(cacheId: string, { expirationTime = 24 * 60 * 60, maxSize = 1000 }: CacheOptions = {}) {
     this.cacheDefinition = {
       id: cacheId,
       options: {
@@ -34,6 +35,7 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
     };
     this.cacheOptions = { expirationTime, maxSize };
     this.logger = CacheFlow.getLogger();
+    this.isCacheable = false;
     CacheFlow.addInstance(cacheId, this);
 
     this.switchToLRUMode();
@@ -65,6 +67,8 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
       }
     }
   }
+
+  protected abstract async load(key: K): Promise<V>;
 
   /**
    * Gets a cached value.
@@ -202,8 +206,6 @@ export abstract class CacheLoader<K extends Object, V extends Object> {
   public getCacheDefinition(): CacheDefinition {
     return this.cacheDefinition;
   }
-
-  protected abstract async load(key: K): Promise<V>;
 
   protected keyToString(key: K): string {
     if (typeof key === 'string') {
