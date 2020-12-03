@@ -51,7 +51,7 @@ export class CacheFlow {
         await cache.delete({ args: key });
       }
       else {
-        await cache.delete(key);
+        await cache.delete(key[0]);
       }
     }
   }

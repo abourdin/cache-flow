@@ -213,6 +213,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
       return key.toString();
     }
     else {
+      console.log(key);
       throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
     }
   }

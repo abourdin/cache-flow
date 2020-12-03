@@ -45,6 +45,8 @@ describe('CacheLoader Test', () => {
 
     await CacheFlow.reset('simple-cache');
     assert.isFalse(await cache1.exists('foo'));
+
+    await CacheFlow.delete('simple-cache', 'foo');
   });
 
   it('test should get errors when giving wrong key input', async () => {
