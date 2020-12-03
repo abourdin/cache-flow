@@ -15,6 +15,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize }, keyTo
           expirationTime: expirationTime || 3600,
           maxSize: maxSize || 1000
         });
+        this.isCacheable = true;
       }
 
       protected async load(key: CacheableKey): Promise<any> {
@@ -22,12 +23,14 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize }, keyTo
       }
 
       protected keyToString(key: CacheableKey): string {
+        let str;
         if (keyToString) {
-          return keyToString.apply(key.scope, key.args);
+          str = keyToString.apply(key.scope, key.args);
         }
         else {
-          return JSON.stringify(key.args);
+          str = JSON.stringify(key.args);
         }
+        return str;
       }
 
       protected serialize(value: any): any {
