@@ -1,6 +1,6 @@
 {
   "name": "cache-flow",
-  "version": "1.5.0",
+  "version": "1.4.8",
   "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
   "scripts": {
     "clean": "rimraf build coverage test-results docs",
