@@ -45,8 +45,8 @@ export class CacheFlow {
   }
 
   public static async delete(cacheId: string, key: any): Promise<void> {
-    const cache = this.get(cacheId);
-    if (cache.isCacheable) {
+    const cache = this.instances.get(cacheId);
+    if ((cache as any).isCacheable) {
       await cache.delete({ args: key });
     }
     else {
@@ -55,7 +55,7 @@ export class CacheFlow {
   }
 
   public static async reset(cacheId: string): Promise<void> {
-    const cache = this.get(cacheId);
+    const cache = this.instances.get(cacheId);
     if (cache) {
       await cache.reset();
     }
@@ -67,7 +67,7 @@ export class CacheFlow {
 
   public static addInstance(cacheId: string, cache: CacheLoader<any, any>): void {
     this.instances.set(cacheId, cache);
-    if (!cache.isCacheable) {
+    if (!(cache as any).isCacheable) {
       this.nonCacheableInstances.set(cacheId, cache);
     }
   }

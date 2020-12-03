@@ -1,4 +1,5 @@
-import { CacheLoader, CacheOptions } from '../CacheLoader';
+import { CacheOptions } from '../BaseCacheLoader';
+import { CacheableLoader } from '../CacheableLoader';
 
 export function Cacheable({ cacheId, options: { expirationTime, maxSize }, keyToString, serialize, deserialize }: CacheableParams = {}) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -9,7 +10,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize }, keyTo
     const resolvedCacheId = cacheId || `${className}#${propertyKey}`;
     const originalMethod = descriptor.value;
 
-    class CacheableCache extends CacheLoader<CacheableKey, any> {
+    class CacheableCache extends CacheableLoader<CacheableKey, any> {
       constructor() {
         super(resolvedCacheId, {
           expirationTime: expirationTime || 3600,
