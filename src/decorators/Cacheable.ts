@@ -25,7 +25,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize }, keyTo
       protected keyToString(key: CacheableKey): string {
         let str;
         if (keyToString) {
-          str = keyToString(key.args);
+          str = keyToString(...key.args);
         }
         else {
           str = JSON.stringify(key.args);
