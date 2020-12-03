@@ -16,7 +16,6 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize }, keyTo
           expirationTime: expirationTime || 3600,
           maxSize: maxSize || 1000
         });
-        this.isCacheable = true;
       }
 
       protected async load(key: CacheableKey): Promise<any> {
