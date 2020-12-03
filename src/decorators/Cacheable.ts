@@ -35,7 +35,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
 
       protected serialize(value: any): any {
         if (serialize) {
-          return serialize.apply(this, value);
+          return serialize.apply(this, [value]);
         }
         else {
           return super.serialize(value);
@@ -44,7 +44,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
 
       protected deserialize(value: any): any {
         if (deserialize) {
-          return deserialize.apply(this, value);
+          return deserialize.apply(this, [value]);
         }
         else {
           return super.deserialize(value);
