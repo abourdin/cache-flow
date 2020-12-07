@@ -3,11 +3,18 @@ import { assert } from 'chai';
 import ObjectStringCache from '../examples/ObjectStringCache';
 import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
+import { logger } from './utils/TestUtils';
+
+CacheFlow.configure({
+  logger: logger
+});
 
 describe('ObjectStringCache Test', () => {
 
   before(async function () {
-    CacheFlow.configure({});
+    CacheFlow.configure({
+      logger: logger
+    });
   });
 
   after(async function () {

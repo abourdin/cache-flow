@@ -28,7 +28,20 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
           str = keyToString(...key.args);
         }
         else {
-          str = key.args.map(element => JSON.stringify(element)).join('-');
+          str = key.args.map(element => {
+            let elementString;
+            let type = typeof element;
+            if (type === 'object') {
+              elementString = JSON.stringify(element);
+            }
+            else if (type === 'string' || type === 'number' || type === 'boolean' || type === 'undefined' || type === 'bigint') {
+              elementString = element;
+            }
+            else {
+              throw new Error(`Unsupported cache key element type: ${element} has type ${type}`);
+            }
+            return elementString;
+          }).join('-');
         }
         return str;
       }

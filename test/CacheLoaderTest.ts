@@ -2,9 +2,7 @@ import { fail } from 'assert';
 import { assert } from 'chai';
 import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
-import { configureLogger } from './utils/TestUtils';
-
-const logger = configureLogger();
+import { logger } from './utils/TestUtils';
 
 describe('CacheLoader Test', () => {
 

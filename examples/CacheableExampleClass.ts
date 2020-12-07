@@ -9,15 +9,9 @@ export class CacheableExampleClass {
     this.id = id;
   }
 
-  @Cacheable({
-    keyToString: (prefix: string, value: number) => {
-      return `${prefix}-${value}`;
-    },
-    options: {
-      expirationTime: 3600
-    }
-  })
+  @Cacheable()
   public async getResult(prefix: string, value: number): Promise<string> {
+    console.log(`getResult ${prefix} ${value}`);
     await sleep(100);
     const now = new Date();
     return `${this.id}-${prefix}-${now.getTime()}${now.getMilliseconds()}-${value * 3}`;
