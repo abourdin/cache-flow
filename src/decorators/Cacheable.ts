@@ -59,7 +59,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
   };
 }
 
-interface CacheableParams {
+export interface CacheableParams {
   cacheId?: string;
   options?: CacheOptions;
   keyToString?: (...args: any[]) => string;
