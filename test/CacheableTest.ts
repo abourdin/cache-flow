@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import { Container } from 'typedi';
+import { CacheableCustomSerializationExample } from '../examples/CacheableCustomSerializationExample';
 import { CacheableExampleClass } from '../examples/CacheableExampleClass';
 import { DICacheableExampleClass } from '../examples/DICacheableExampleClass';
 import { CacheFlow } from '../src';
@@ -100,6 +101,13 @@ describe('Cacheable Test', () => {
     assert.notEqual(value8, value7);
     assert.notEqual(value9, value6);
     assert.notEqual(value10, value6);
+  });
+
+  it('test cacheable with custom serialization and deserialization', async () => {
+    const instance = new CacheableCustomSerializationExample();
+    const result1 = await instance.getResult('foo', 123);
+    const result2 = await instance.getResult('foo', 123);
+    assert.deepEqual(result1, result2);
   });
 
 });
