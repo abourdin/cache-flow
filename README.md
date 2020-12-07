@@ -314,25 +314,11 @@ class MyEntityCache extends CacheLoader<string, MyEntity> {
   }
 
   protected serialize(entity: MyEntity): any {
-    let serializedValue;
-    if (entity instanceof MyEntity) {
-      serializedValue = { schemaName: entity.getSchemaName(), entity: instance.toJSON() };
-    }
-    else {
-      serializedValue = entity;
-    }
-    return serializedValue;
+    return entity.toJSON();
   }
 
   protected deserialize(serialized: any): MyEntity {
-    let unserializedValue;
-    if (serialized && serialized.schemaName) {
-      unserializedValue = MyEntity.fromJSON(serialized.value);
-    }
-    else {
-      unserializedValue = serialized;
-    }
-    return unserializedValue;
+    return MyEntity.fromJSON(serialized);
   }
   
 }
