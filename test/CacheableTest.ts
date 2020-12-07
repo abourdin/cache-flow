@@ -4,9 +4,7 @@ import { CacheableCustomSerializationExample } from '../examples/CacheableCustom
 import { CacheableExampleClass } from '../examples/CacheableExampleClass';
 import { DICacheableExampleClass } from '../examples/DICacheableExampleClass';
 import { CacheFlow } from '../src';
-import { configureLogger } from './utils/TestUtils';
-
-const logger = configureLogger();
+import { logger } from './utils/TestUtils';
 
 describe('Cacheable Test', () => {
 

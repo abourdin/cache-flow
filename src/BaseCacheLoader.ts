@@ -1,6 +1,5 @@
 import { differenceInMilliseconds, formatDistanceStrict } from 'date-fns';
 import { CacheFlow } from './CacheFlow';
-import { LoggerInterface } from './config/CacheFlowConfiguration';
 import { LRUCache } from './delegate/lru/LRUCache';
 import { RedisCache } from './delegate/redis/RedisCache';
 import { redisClientProvider } from './redis/RedisClientProvider';
@@ -11,7 +10,6 @@ import { redisClientProvider } from './redis/RedisClientProvider';
 export abstract class BaseCacheLoader<K extends Object, V extends Object> {
   private readonly cacheDefinition: CacheDefinition;
   private readonly cacheOptions: CacheOptions;
-  private readonly logger: LoggerInterface;
   private delegate: LRUCache | RedisCache;
   private mode: 'LRU' | 'REDIS';
   protected isCacheable: boolean;
@@ -34,7 +32,6 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
       metadata: {}
     };
     this.cacheOptions = { expirationTime, maxSize };
-    this.logger = CacheFlow.getLogger();
 
     this.switchToLRUMode();
 
@@ -43,24 +40,24 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
 
       const self = this;
       redisClient.on('ready', function () {
-        self.logger.debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis`);
+        CacheFlow.getLogger().debug(`Successfully (re)connected to Redis server, switching '${cacheId}' to Redis`);
         self.switchToRedisMode();
       });
       redisClient.on('error', function (error: { code: string; message: string }) {
         if (self.mode === 'REDIS') {
           if (error.code === 'ECONNREFUSED') {
-            self.logger.error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory LRU cache: `, error.message);
+            CacheFlow.getLogger().error(`Error connecting to Redis cache, falling back '${cacheId}' to in-memory LRU cache: `, error.message);
             self.switchToLRUMode();
           }
           else if (error.code === 'ECONNRESET') {
-            self.logger.error(`Error connecting to Redis: `, error.message);
+            CacheFlow.getLogger().error(`Error connecting to Redis: `, error.message);
             self.switchToLRUMode();
           }
         }
       });
 
       if (redisClient.status === 'ready') {
-        this.logger.debug(`Successfully connected to Redis server, '${cacheId}' is now using Redis`);
+        CacheFlow.getLogger().debug(`Successfully connected to Redis server, '${cacheId}' is now using Redis`);
         this.switchToRedisMode();
       }
     }
@@ -81,7 +78,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
       return undefined;
     }
     if (!force) {
-      this.logger.debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
+      CacheFlow.getLogger().debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
       try {
         const keyToString = this.keyToString(key);
         const cachedValue = await this.delegate.get(keyToString);
@@ -116,7 +113,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
       return undefined;
     }
     if (!force) {
-      this.logger.debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
+      CacheFlow.getLogger().debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
       try {
         const keyToString = this.keyToString(key);
         const cachedValue = await this.delegate.get(keyToString);
@@ -139,7 +136,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
 
   public async set(key: K, value: V): Promise<void> {
     if (key === undefined || value === undefined) {
-      this.logger.error(`Tried to store undefined key or value in cache '${this.getCacheId()}': key="${this.keyToString(key)}", value="${value}"`);
+      CacheFlow.getLogger().error(`Tried to store undefined key or value in cache '${this.getCacheId()}': key="${this.keyToString(key)}", value="${value}"`);
     }
     else {
       const keyToString = this.keyToString(key);
@@ -188,7 +185,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
    * Deletes all entries in the cache;
    */
   public async reset() {
-    this.logger.debug(`Clearing cache '${this.getCacheId()}'`);
+    CacheFlow.getLogger().debug(`Clearing cache '${this.getCacheId()}'`);
     try {
       await this.delegate.reset();
     }
@@ -245,13 +242,13 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
 
   private async doLoadAndSet(key: K) {
     if (this.load) {
-      this.logger.debug(`Loading value for key '${this.keyToString(key)}' into cache '${this.getCacheId()}'`);
+      CacheFlow.getLogger().debug(`Loading value for key '${this.keyToString(key)}' into cache '${this.getCacheId()}'`);
       let value;
       try {
         value = await this.load(key);
       }
       catch (error) {
-        this.logger.error(`Failed to load value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
+        CacheFlow.getLogger().error(`Failed to load value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
         throw error;
       }
       if (key !== undefined && value !== undefined) {

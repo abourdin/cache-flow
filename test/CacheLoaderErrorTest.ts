@@ -2,9 +2,7 @@ import { fail } from 'assert';
 import { assert } from 'chai';
 import ErrorThrowingCache from '../examples/ErrorThrowingCache';
 import { CacheFlow } from '../src';
-import { configureLogger } from './utils/TestUtils';
-
-const logger = configureLogger();
+import { logger } from './utils/TestUtils';
 
 describe('CacheLoader Error Test', () => {
 
