@@ -28,7 +28,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
           str = keyToString(...key.args);
         }
         else {
-          str = JSON.stringify(key.args);
+          str = JSON.stringify.apply(null, key.args).join('-');
         }
         return str;
       }
@@ -44,7 +44,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
 
       protected deserialize(value: any): any {
         if (deserialize) {
-          return deserialize.call(this, [value]);
+          return deserialize.call(this, value);
         }
         else {
           return super.deserialize(value);
