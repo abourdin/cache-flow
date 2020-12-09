@@ -11,7 +11,7 @@ class User {
 export class DICacheableExampleClass {
 
   @Cacheable({
-    keyToString: (user: User) => {
+    argsToKey: (user: User) => {
       return user.id;
     }
   })

@@ -1,7 +1,8 @@
+import hash from 'object-hash';
 import { CacheOptions } from '../BaseCacheLoader';
 import { CacheableLoader } from '../CacheableLoader';
 
-export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, keyToString, serialize, deserialize }: CacheableParams = {}) {
+export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, argsToKey, keyToString, serialize, deserialize }: CacheableParams = {}) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     if (descriptor === undefined) {
       descriptor = Object.getOwnPropertyDescriptor(target, propertyKey);
@@ -23,27 +24,20 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
       }
 
       protected keyToString(key: CacheableKey): string {
-        let str;
-        if (keyToString) {
-          str = keyToString(...key.args);
+        let keyObject: any;
+        const argsToKeyFunction = argsToKey || keyToString;
+        if (argsToKey) {
+          keyObject = argsToKeyFunction(...key.args);
         }
         else {
-          str = key.args.map(element => {
-            let elementString;
-            let type = typeof element;
-            if (type === 'object') {
-              elementString = JSON.stringify(element);
-            }
-            else if (type === 'string' || type === 'number' || type === 'boolean' || type === 'undefined' || type === 'bigint') {
-              elementString = element;
-            }
-            else {
-              throw new Error(`Unsupported cache key element type: ${element} has type ${type}`);
-            }
-            return elementString;
-          }).join('-');
+          keyObject = key.args;
         }
-        return str;
+        if (typeof keyObject === 'string') {
+          return keyObject;
+        }
+        else {
+          return hash(keyObject);
+        }
       }
 
       protected serialize(value: any): any {
@@ -75,7 +69,9 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
 export interface CacheableParams {
   cacheId?: string;
   options?: CacheOptions;
-  keyToString?: (...args: any[]) => string;
+  argsToKey?: (...args: any[]) => any;
+  /* @deprecated: replaced with argsToKey */
+  keyToString?: (...args: any[]) => any;
   serialize?: (value: any) => any;
   deserialize?: (value: any) => any;
 }

@@ -1,4 +1,5 @@
 import { differenceInMilliseconds, formatDistanceStrict } from 'date-fns';
+import hash from 'object-hash';
 import { CacheFlow } from './CacheFlow';
 import { LRUCache } from './delegate/lru/LRUCache';
 import { RedisCache } from './delegate/redis/RedisCache';
@@ -210,7 +211,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
       return key.toString();
     }
     else {
-      throw new Error(`Method keyToString() must be overridden for cache ${this.getCacheId()}`);
+      return hash(key);
     }
   }
 
