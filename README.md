@@ -9,6 +9,7 @@
 
 Allows to create configurable caches for NodeJS applications with automatic cache loading.
 Internal caching is supported by an in-memory cache or Redis, with automatic fallback in case of Redis disconnection.
+
 **Cache Flow** also provides a `@Cacheable` decorator for Typescript projects (inspired from Java/Spring),
 packing all the caching features of this library into a single line of code, completely transparently for method callers.
 
