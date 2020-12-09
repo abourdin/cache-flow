@@ -171,9 +171,9 @@ interface MyCacheKey {
 ### Using @Cacheable Typescript decorator
 
 When using Typescript, you have access to a powerful shortcut to caching: you can annotate your class method with `@Cacheable`.
-This automatically wraps your method call with a caching layer, meaning that when calling your method, **Cache Flow**
+This automatically wraps your method call with a caching layer, meaning when calling your method, **Cache Flow**
 will take care of checking for an existing cached value, and otherwise will execute the method to get one.
-This makes adding a cache completely transparent for anyone calling this method, without any other required change than annotating
+With this, adding a cache is completely transparent for anyone calling this method, without any other required change than annotating
 your method with the `@Cacheable` decorator.
 
 Here is an example:
@@ -199,19 +199,21 @@ class CacheableExampleClass {
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/CacheableExampleClass.ts)_
 
 `@Cacheable` provides the same flexibility as manually declaring a class cache: you can configure the `cacheId`,
-`expirationTime` and `maxSize` parameters, as well as the `keyToString`, `serialize` and `deserialize` functions (see documentation below).
+`expirationTime` and `maxSize` parameters, as well as the `argsToKey`, `serialize` and `deserialize` functions (see documentation below).
 
-By default, `@Cacheable` will use `JSON.stringify` on the array of arguments to create a cache key. In cases where you have more complex objects
-as your cache key, you can define a custom way of inferring the cache key from arguments:
+By default, `@Cacheable` will use [object-hash](https://www.npmjs.com/package/object-hash) on the array of arguments to create a cache key. In cases where you have more complex objects
+as your cache key, and only want to use a subset of these objects, you can define a custom way of inferring the cache key from arguments:
 
 ```typescript
 @Cacheable({
-  keyToString: (user: User) => user.id,
+  argsToKey: (user: User) => { user.id, user.lastUpdate },
   options: {
     expirationTime: 3600
   } 
 })
 ```
+
+If `argsToKey` returns a string, this string is directly used a the cache key. Otherwise, the cache computes a hash of the returned value and uses it as the cache key.
 
 ### More examples
 
@@ -386,11 +388,11 @@ method must be called from the master thread. In environment not running cluster
 | Method | Example | Description |
 | --- | --- | --- |
 | `static configure(configuration: CacheFlowConfiguration)` | `CacheFlow.configure({redis: {port: 1234}})` | Sets the global configuration for Cache Flow and all subsequently instantiated caches |
-| `static get(cacheId: string): Promise<CacheLoader<any, any>>` | `CacheFlow.get('my-cache')` | Gets cache with given cache ID |
+| `static get(cacheId: string): Promise<CacheLoader<any, any>>` | `CacheFlow.get('my-cache')` | Gets cache with given cache ID. Cannot access caches created using @Cacheable annotation. |
 | `static async delete(cacheId: string, key: any): Promise<void>` | `CacheFlow.delete('my-cache', 'myKey')` | Deletes entry for given key in cache with given cache ID |
 | `static async reset(cacheId: string): Promise<void>` | `CacheFlow.reset('my-cache')` | Resets cache with given cache ID |
 | `static async resetAll(): Promise<void>` | `CacheFlow.resetAll()` | Clears all caches |
-| `static getInstances(): CacheLoader<any, any>[]` | `CacheFlow.getInstances()` | Gets all cache instances |
+| `static getInstances(): CacheLoader<any, any>[]` | `CacheFlow.getInstances()` | Gets all cache instances (except the ones created using @Cacheable annotation) |
 
 # Project Information
 

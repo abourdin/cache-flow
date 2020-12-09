@@ -4,7 +4,7 @@ import { sleep } from '../test/utils/TestUtils';
 export class CacheableCustomSerializationExample {
 
   @Cacheable({
-    keyToString: (prefix: string, value: number) => {
+    argsToKey: (prefix: string, value: number) => {
       return `${prefix}-${value}`;
     },
     options: {
