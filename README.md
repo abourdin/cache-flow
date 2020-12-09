@@ -133,13 +133,6 @@ _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/
 
 **Cache Flow** allows you to define caches with more complex keys and values, which can be objects, arrays, ...
 
-These caches require you to implement a `keyToString` function, transforming your key into a unique string identifying your key. It can be as simple as an ID, or a combination of several parameters that define your key, like:
-```typescript
-protected keyToString(identifier: Identifier): string {
-  return `${identifier.code}-${identifier.language}`;
-}
-```
-
 This way, you can define your own cache key structures:
 ```typescript
 class CustomCache extends CacheLoader<MyCacheKey, CachedObject> {
@@ -154,10 +147,6 @@ class CustomCache extends CacheLoader<MyCacheKey, CachedObject> {
     const result = await doSomething(key);
     return result;
   }
-  
-  protected keyToString(key: MyCacheKey): string {
-    return `${key.id}-${key.someField}-${key.someOtherField}`;
-  }
 
 }
 
@@ -165,6 +154,13 @@ interface MyCacheKey {
   id: string;
   someField: string;
   someOtherField: number;
+}
+```
+
+A cache defined with such a key will compute a hash of your key objects to use as the internal cache key. You can also define a custom `keyToString` function, transforming your key into a unique string identifying your key. It can be as simple as an ID, or a combination of several parameters that define your key, like:
+```typescript
+protected keyToString(identifier: Identifier): string {
+  return `${identifier.code}-${identifier.language}`;
 }
 ```
 
