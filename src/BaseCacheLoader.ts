@@ -175,6 +175,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
   public async delete(key: K): Promise<void> {
     try {
       const keyToString = this.keyToString(key);
+      CacheFlow.getLogger().debug(`Deleting key ${keyToString} from cache '${this.getCacheId()}'`);
       await this.delegate.delete(keyToString);
     }
     catch (error) {
