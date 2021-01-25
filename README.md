@@ -7,11 +7,11 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/abourdin/cache-flow.svg?style=flat)](#)
 [![NPM Downloads](https://img.shields.io/npm/dt/cache-flow.svg?style=flat)](#)
 
-Allows to create configurable caches for NodeJS applications with automatic cache loading.
-Internal caching is supported by an in-memory cache or Redis, with automatic fallback in case of Redis disconnection.
+Allows to create configurable caches for NodeJS applications with automatic cache loading. Internal caching is supported
+by an in-memory cache or Redis, with automatic fallback in case of Redis disconnection.
 
-**Cache Flow** also provides a `@Cacheable` decorator for Typescript projects (inspired from Java/Spring),
-packing all the caching features of this library into a single line of code, completely transparently for method callers.
+**Cache Flow** also provides a `@Cacheable` decorator for Typescript projects (inspired from Java/Spring), packing all
+the caching features of this library into a single line of code, completely transparently for method callers.
 
 # Table of Contents
 
@@ -24,7 +24,7 @@ packing all the caching features of this library into a single line of code, com
 * [Configuration](#configuration)
     - [Configure Redis](#configure-redis)
     - [Custom logger](#custom-logger)
-    - [Detailed configuration](#detailed-configuration) 
+    - [Detailed configuration](#detailed-configuration)
 * [Custom serialization/deserialization](#custom-serializationdeserialization)
 * [Use with dependency injection](#use-with-dependency-injection)
 * [Cache Flow Reference](#cacheflow-reference)
@@ -44,6 +44,7 @@ npm install --save cache-flow
 `npm install --save reflect-metadata`
 
 Make sure to import it before you use `cache-flow` (best is to import it at the top of your index file):
+
 ```typescript
 import 'reflect-metadata';
 ```
@@ -74,6 +75,7 @@ class SimpleCache extends CacheLoader<string, string> {
 
 }
 ```
+
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/SimpleCache.ts)_
 
 1.b. **ES6 Javascript example:**
@@ -102,6 +104,7 @@ class ES6ExampleCache extends CacheLoader {
 
 }
 ```
+
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/ES6ExampleCache.ts)_
 
 2. **Use your cache**
@@ -109,20 +112,23 @@ _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/
 ```typescript
 const cache = new SimpleCache();
 const myValue = cache.get('myKey');
-setTimeout(function(){ 
-    const myValue2 = cache.get('myKey');
-    console.log(myValue);
-    console.log(myValue2); // myValue2 has the same value as myValue!
+setTimeout(function () {
+  const myValue2 = cache.get('myKey');
+  console.log(myValue);
+  console.log(myValue2); // myValue2 has the same value as myValue!
 }, 3000);
 ```
 
 3. **What happened behind the scenes**
 
-Unlike lots of cache libraries, with **Cache Flow**, you don't need to manually check if a key exists in your cache before trying to get it, and set the value yourself afterwards.
+Unlike lots of cache libraries, with **Cache Flow**, you don't need to manually check if a key exists in your cache
+before trying to get it, and set the value yourself afterwards.
 
-When you call the `get` function of your cache, **Cache Flow** automatically takes care of calling the load function your previously defined, and stores the value for a later call.
+When you call the `get` function of your cache, **Cache Flow** automatically takes care of calling the load function
+your previously defined, and stores the value for a later call.
 
-So if you call `get` right after, giving the same key, it will bypass the loader function, and directly pull the value from the inner cache.
+So if you call `get` right after, giving the same key, it will bypass the loader function, and directly pull the value
+from the inner cache.
 
 ### A more advanced example
 
@@ -139,18 +145,20 @@ class UserProfileCache extends CacheLoader<User, UserProfile> {
     const profile = await userProfileService.getProfile(user);
     return profile;
   }
-  
+
   protected keyToString(user: User): string {
     return user.id;
   }
 
 }
 ```
+
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/ObjectStringCache.ts)_
 
 **Cache Flow** allows you to define caches with more complex keys and values, which can be objects, arrays, ...
 
 This way, you can define your own cache key structures:
+
 ```typescript
 class CustomCache extends CacheLoader<MyCacheKey, CachedObject> {
 
@@ -174,22 +182,31 @@ interface MyCacheKey {
 }
 ```
 
-A cache defined with such a key will compute a hash of your key objects to use as the internal cache key. You can also define a custom `keyToString` function, transforming your key into a unique string identifying your key. It can be as simple as an ID, or a combination of several parameters that define your key, like:
+A cache defined with such a key will compute a hash of your key objects to use as the internal cache key. You can also
+define a custom `keyToString` function, transforming your key into a unique string identifying your key. It can be as
+simple as an ID, or a combination of several parameters that define your key, like:
+
 ```typescript
-protected keyToString(identifier: Identifier): string {
-  return `${identifier.code}-${identifier.language}`;
+class CustomCache extends CacheLoader<Identifier, string> {
+
+  protected keyToString(identifier: Identifier): string {
+    return `${identifier.code}-${identifier.language}`;
+  }
+  
 }
 ```
 
 ### Using @Cacheable Typescript decorator
 
-When using Typescript, you have access to a powerful shortcut to caching: you can annotate your class method with `@Cacheable`.
-This automatically wraps your method call with a caching layer, meaning when calling your method, **Cache Flow**
-will take care of checking for an existing cached value, and otherwise will execute the method to get one.
-With this, adding a cache is completely transparent for anyone calling this method, without any other required change than annotating
-your method with the `@Cacheable` decorator.
+When using Typescript, you have access to a powerful shortcut to caching: you can annotate your class method
+with `@Cacheable`. This automatically wraps your method call with a caching layer, meaning when calling your method, **
+Cache Flow**
+will take care of checking for an existing cached value, and otherwise will execute the method to get one. With this,
+adding a cache is completely transparent for anyone calling this method, without any other required change than
+annotating your method with the `@Cacheable` decorator.
 
 Here is an example:
+
 ```typescript
 class CacheableExampleClass {
 
@@ -212,21 +229,26 @@ class CacheableExampleClass {
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/CacheableExampleClass.ts)_
 
 `@Cacheable` provides the same flexibility as manually declaring a class cache: you can configure the `cacheId`,
-`expirationTime` and `maxSize` parameters, as well as the `argsToKey`, `serialize` and `deserialize` functions (see documentation below).
+`expirationTime` and `maxSize` parameters, as well as the `argsToKey`, `serialize` and `deserialize` functions (see
+documentation below).
 
-By default, `@Cacheable` will use [object-hash](https://www.npmjs.com/package/object-hash) on the array of arguments to create a cache key. In cases where you have more complex objects
-as your cache key, and only want to use a subset of these objects, you can define a custom way of inferring the cache key from arguments:
+By default, `@Cacheable` will use [object-hash](https://www.npmjs.com/package/object-hash) on the array of arguments to
+create a cache key. In cases where you have more complex objects as your cache key, and only want to use a subset of
+these objects, you can define a custom way of inferring the cache key from arguments:
 
 ```typescript
 @Cacheable({
-  argsToKey: (user: User) => { user.id, user.lastUpdate },
+  argsToKey: (user: User) => {
+    user.id, user.lastUpdate
+  },
   options: {
     expirationTime: 3600
-  } 
+  }
 })
 ```
 
-If `argsToKey` returns a string, this string is directly used a the cache key. Otherwise, the cache computes a hash of the returned value and uses it as the cache key.
+If `argsToKey` returns a string, this string is directly used a the cache key. Otherwise, the cache computes a hash of
+the returned value and uses it as the cache key.
 
 ### More examples
 
@@ -237,9 +259,9 @@ https://github.com/abourdin/cache-flow/tree/master/examples
 
 ### Configure Redis
 
-**Cache Flow** also supports distributed caching by using Redis as the caching engine.
-To have your cache instances use Redis behind the scenes, **Cache Flow** must be configured as part of the startup of your application,
-before any cache is instantiated.
+**Cache Flow** also supports distributed caching by using Redis as the caching engine. To have your cache instances use
+Redis behind the scenes, **Cache Flow** must be configured as part of the startup of your application, before any cache
+is instantiated.
 
 ```typescript
 import { CacheFlow } from 'cache-flow';
@@ -257,15 +279,18 @@ const cache = new SimpleCache();
 
 But what if your Redis server has to restart or goes down? Don't worry, **Cache Flow** has got you covered!
 
-In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache, until
-your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This way, you
-will never experience any interruption in your caching layer.
+In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache,
+until your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This
+way, you will never experience any interruption in your caching layer.
 
 ### Custom Logger
 
-**Cache Flow** comes with a default logger which can log various information about what happens with your caches (when values are get, loaded, some errors, ...)
+**Cache Flow** comes with a default logger which can log various information about what happens with your caches (when
+values are get, loaded, some errors, ...)
 
-By default, **Cache Flow** will only log errors to `console.error`, but you can provide your own logger in the initial configuration of the library, like [log4js](https://www.npmjs.com/package/log4js), [winston](https://www.npmjs.com/package/winston), ...
+By default, **Cache Flow** will only log errors to `console.error`, but you can provide your own logger in the initial
+configuration of the library, like [log4js](https://www.npmjs.com/package/log4js)
+, [winston](https://www.npmjs.com/package/winston), ...
 
 See the example below with [log4js](https://www.npmjs.com/package/log4js):
 
@@ -291,14 +316,16 @@ CacheFlow.configure({
 ### Detailed configuration
 
 1. `CacheLoader` constructor parameters:
+
 - `cacheId`: a unique string identifying each cache. If shared between 2 caches or more, their keys might conflict, and
-cause deserialization errors when trying to get a key stored by another cache.
+  cause deserialization errors when trying to get a key stored by another cache.
 - `options`:
     * `expirationTime`: the time in seconds during which cache entries will be retained before being evicted
     * `maxSize`: the maximum number of entries stored in the cache when running in LRU mode. Once maximum is reached and
-                 a new entry is added to the cache, it replaces the least recently used.
-                 
+      a new entry is added to the cache, it replaces the least recently used.
+
 2. `CacheFlow.configure(configuration)` configuration object parameter:
+
 - `redis`:
     * `host`: the Redis server hostname
     * `port`: the Redis server port (default: 6379)
@@ -307,12 +334,13 @@ cause deserialization errors when trying to get a key stored by another cache.
 
 ## Custom serialization/deserialization
 
-When extending `Cache`, you cache will come with default serialization and deserialization implementations for the 
-`serialize` and `deserialize` methods, which take care of storing objects and arrays as JSON in the inner cache, and transform
-them back when getting values out of the cache.
+When extending `CacheLoader`, your cache will come with default serialization and deserialization implementations for
+the
+`serialize` and `deserialize` methods, which take care of storing objects and arrays as JSON in the inner cache, and
+transform them back when getting values out of the cache.
 
-In the case where you need to implement your own serialization and deserialization, for example to cache specific framework classes
-or entities, your `CacheLoader` implementation can override `serialize` and `deserialize` methods:
+In the case where you need to implement your own serialization and deserialization, for example to cache specific
+framework classes or entities, your `CacheLoader` implementation can override `serialize` and `deserialize` methods:
 
 ```typescript
 class MyEntityCache extends CacheLoader<string, MyEntity> {
@@ -335,13 +363,14 @@ class MyEntityCache extends CacheLoader<string, MyEntity> {
   protected deserialize(serialized: any): MyEntity {
     return MyEntity.fromJSON(serialized);
   }
-  
+
 }
 ```
 
 ## Use with dependency injection
 
-**Cache Flow** is compatible with your favorite Typescript DI framework, like [typedi](https://www.npmjs.com/package/typedi),
+**Cache Flow** is compatible with your favorite Typescript DI framework,
+like [typedi](https://www.npmjs.com/package/typedi),
 [tsyringe](https://www.npmjs.com/package/tsyringe), [InversifyJS](https://www.npmjs.com/package/inversify)...
 
 For example, with typedi:
@@ -368,12 +397,15 @@ class UserCache extends CacheLoader<string, User> {
 
 }
 ```
+
 _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/DIExampleCache.ts)_
 
 ## Notes
-- LRU cache implementation used by **Cache Flow** supports using [cluster](https://nodejs.org/docs/latest-v13.x/api/cluster.html),
-so if running in cluster mode, your caches will be shared by all workers. Only requirement is that `CacheFlow.configure`
-method must be called from the master thread. In environment not running cluster, a standard LRU cache is used.
+
+- LRU cache implementation used by **Cache Flow** supports
+  using [cluster](https://nodejs.org/docs/latest-v13.x/api/cluster.html), so if running in cluster mode, your caches
+  will be shared by all workers. Only requirement is that `CacheFlow.configure`
+  method must be called from the master thread. In environment not running cluster, a standard LRU cache is used.
 
 ## CacheFlow Reference
 
