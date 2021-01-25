@@ -1,0 +1,594 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>cache-flow</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<ul class="results-priority" style="display:none">
+					</ul>
+					<a href="index.html" class="title">cache-flow</a>
+					&emsp;<a href="https://www.npmjs.com/package/cache-flow" class="title">npm</a>
+					&emsp;<a href="https://github.com/abourdin/cache-flow" class="title">GitHub</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+			</ul>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		<div class="col-7 offset-3 col-content">
+			<h1>Project cache-flow</h1>
+			<div class="tsd-panel tsd-typography">
+				<a href="#cache-flow" id="cache-flow" style="color: inherit; text-decoration: none;">
+					<h1>Cache Flow</h1>
+				</a>
+				<p><a href="#"><img src="https://img.shields.io/npm/v/cache-flow.svg?style=flat" alt="Version"></a>
+					<a href="#"><img src="https://img.shields.io/badge/License-ISC-yellow.svg" alt="License: ISC"></a>
+					<a href="https://app.circleci.com/pipelines/github/abourdin/cache-flow?branch=master"><img src="https://circleci.com/gh/abourdin/cache-flow/tree/master.svg?style=shield" alt="master CI Status"></a>
+					<a href="https://codecov.io/gh/abourdin/cache-flow/branch/master"><img src="https://codecov.io/github/abourdin/cache-flow/coverage.svg?branch=master" alt="master Coverage Status"></a>
+					<a href="#"><img src="https://img.shields.io/github/last-commit/abourdin/cache-flow.svg?style=flat" alt="GitHub last commit"></a>
+				<a href="#"><img src="https://img.shields.io/npm/dt/cache-flow.svg?style=flat" alt="NPM Downloads"></a></p>
+				<p>Allows to create configurable caches for NodeJS applications with automatic cache loading. Internal caching is supported
+				by an in-memory cache or Redis, with automatic fallback in case of Redis disconnection.</p>
+				<p><strong>Cache Flow</strong> also provides a <code>@Cacheable</code> decorator for Typescript projects (inspired from Java/Spring), packing all
+				the caching features of this library into a single line of code, completely transparently for method callers.</p>
+				<a href="#table-of-contents" id="table-of-contents" style="color: inherit; text-decoration: none;">
+					<h1>Table of Contents</h1>
+				</a>
+				<ul>
+					<li><a href="#installation">Installation</a></li>
+					<li><a href="#usage-example">Usage Example</a><ul>
+							<li><a href="#a-first-simple-cache">A first simple cache</a></li>
+							<li><a href="#a-more-advanced-example">A more advanced example</a></li>
+							<li><a href="#using-cacheable-typescript-decorator">Using @Cacheable Typescript decorator</a></li>
+							<li><a href="#more-examples">More examples</a></li>
+						</ul>
+					</li>
+					<li><a href="#configuration">Configuration</a><ul>
+							<li><a href="#configure-redis">Configure Redis</a></li>
+							<li><a href="#custom-logger">Custom logger</a></li>
+							<li><a href="#detailed-configuration">Detailed configuration</a></li>
+						</ul>
+					</li>
+					<li><a href="#custom-serializationdeserialization">Custom serialization/deserialization</a></li>
+					<li><a href="#use-with-dependency-injection">Use with dependency injection</a></li>
+					<li><a href="#cacheflow-reference">Cache Flow Reference</a><ul>
+							<li><a href="#cacheloaderk-v-methods">CacheLoader&lt;K, V&gt; methods</a></li>
+							<li><a href="#cacheflow-methods">CacheFlow methods</a></li>
+						</ul>
+					</li>
+				</ul>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<ol>
+					<li>Install the library</li>
+				</ol>
+				<pre><code class="language-sh">npm install --save cache-flow</code></pre>
+				<ol start="2">
+					<li><code>reflect-metadata</code> shim is required:</li>
+				</ol>
+				<p><code>npm install --save reflect-metadata</code></p>
+				<p>Make sure to import it before you use <code>cache-flow</code> (best is to import it at the top of your index file):</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> <span class="hljs-string">&#x27;reflect-metadata&#x27;</span>;</code></pre>
+				<a href="#usage-example" id="usage-example" style="color: inherit; text-decoration: none;">
+					<h2>Usage Example</h2>
+				</a>
+				<a href="#a-first-simple-cache" id="a-first-simple-cache" style="color: inherit; text-decoration: none;">
+					<h3>A first simple cache</h3>
+				</a>
+				<ol>
+					<li><strong>Create a cache <code>SimpleCache.ts</code></strong></li>
+				</ol>
+				<p>1.a. <strong>Typescript example:</strong></p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { CacheLoader } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;cache-flow&#x27;</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleCache</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CacheLoader</span>&lt;<span class="hljs-title">string</span>, <span class="hljs-title">string</span>&gt; </span>{
+
+  <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-built_in">super</span>(<span class="hljs-string">&#x27;simple-cache-1&#x27;</span>, {
+      <span class="hljs-attr">expirationTime</span>: <span class="hljs-number">3600</span> <span class="hljs-comment">// 1h in seconds</span>
+    });
+  }
+
+  <span class="hljs-keyword">protected</span> <span class="hljs-keyword">async</span> load(key: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">string</span>&gt; {
+    <span class="hljs-keyword">const</span> now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-keyword">return</span> key + <span class="hljs-string">&#x27;-&#x27;</span> + now.getTime();
+  }
+
+}</code></pre>
+				<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/SimpleCache.ts">code example</a></em></p>
+				<p>1.b. <strong>ES6 Javascript example:</strong></p>
+				<p>Even though it does not provide all the genericity <strong>Cache Flow</strong> comes with when used in a Typescript environment,
+				native javascript is also completely supported:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { CacheLoader } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;cache-flow&#x27;</span>;
+<span class="hljs-comment">// also works with</span>
+<span class="hljs-comment">// const { CacheLoader } = require(&#x27;cache-flow&#x27;);</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ES6ExampleCache</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CacheLoader</span> </span>{
+
+  <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-built_in">super</span>(<span class="hljs-string">&#x27;es6-example-cache&#x27;</span>, {
+      <span class="hljs-attr">expirationTime</span>: <span class="hljs-number">3600</span> <span class="hljs-comment">// 1h in seconds</span>
+    });
+  }
+
+
+  <span class="hljs-function"><span class="hljs-title">load</span>(<span class="hljs-params">key</span>)</span> {
+    <span class="hljs-keyword">const</span> now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-keyword">return</span> key + <span class="hljs-string">&#x27;-&#x27;</span> + now.getTime();
+  }
+
+}</code></pre>
+				<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/ES6ExampleCache.ts">code example</a></em></p>
+				<ol start="2">
+					<li><strong>Use your cache</strong></li>
+				</ol>
+				<pre><code class="language-typescript"><span class="hljs-keyword">const</span> cache = <span class="hljs-keyword">new</span> SimpleCache();
+<span class="hljs-keyword">const</span> myValue = cache.get(<span class="hljs-string">&#x27;myKey&#x27;</span>);
+<span class="hljs-built_in">setTimeout</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> myValue2 = cache.get(<span class="hljs-string">&#x27;myKey&#x27;</span>);
+  <span class="hljs-built_in">console</span>.log(myValue);
+  <span class="hljs-built_in">console</span>.log(myValue2); <span class="hljs-comment">// myValue2 has the same value as myValue!</span>
+}, <span class="hljs-number">3000</span>);</code></pre>
+				<ol start="3">
+					<li><strong>What happened behind the scenes</strong></li>
+				</ol>
+				<p>Unlike lots of cache libraries, with <strong>Cache Flow</strong>, you don&#39;t need to manually check if a key exists in your cache
+				before trying to get it, and set the value yourself afterwards.</p>
+				<p>When you call the <code>get</code> function of your cache, <strong>Cache Flow</strong> automatically takes care of calling the load function
+				your previously defined, and stores the value for a later call.</p>
+				<p>So if you call <code>get</code> right after, giving the same key, it will bypass the loader function, and directly pull the value
+				from the inner cache.</p>
+				<a href="#a-more-advanced-example" id="a-more-advanced-example" style="color: inherit; text-decoration: none;">
+					<h3>A more advanced example</h3>
+				</a>
+				<pre><code class="language-typescript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserProfileCache</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CacheLoader</span>&lt;<span class="hljs-title">User</span>, <span class="hljs-title">UserProfile</span>&gt; </span>{
+
+  <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-built_in">super</span>(<span class="hljs-string">&#x27;user-profile-cache&#x27;</span>, {
+      <span class="hljs-attr">expirationTime</span>: <span class="hljs-number">3600</span> <span class="hljs-comment">// 1h in seconds</span>
+    });
+  }
+
+  <span class="hljs-keyword">protected</span> <span class="hljs-keyword">async</span> load(user: User): <span class="hljs-built_in">Promise</span>&lt;UserProfile&gt; {
+    <span class="hljs-keyword">const</span> profile = <span class="hljs-keyword">await</span> userProfileService.getProfile(user);
+    <span class="hljs-keyword">return</span> profile;
+  }
+
+  <span class="hljs-keyword">protected</span> keyToString(user: User): <span class="hljs-built_in">string</span> {
+    <span class="hljs-keyword">return</span> user.id;
+  }
+
+}</code></pre>
+				<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/ObjectStringCache.ts">code example</a></em></p>
+				<p><strong>Cache Flow</strong> allows you to define caches with more complex keys and values, which can be objects, arrays, ...</p>
+				<p>This way, you can define your own cache key structures:</p>
+				<pre><code class="language-typescript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomCache</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CacheLoader</span>&lt;<span class="hljs-title">MyCacheKey</span>, <span class="hljs-title">CachedObject</span>&gt; </span>{
+
+  <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-built_in">super</span>(<span class="hljs-string">&#x27;custom-cache-key&#x27;</span>, {
+      <span class="hljs-attr">expirationTime</span>: <span class="hljs-number">3600</span> <span class="hljs-comment">// 1h in seconds</span>
+    });
+  }
+
+  <span class="hljs-keyword">protected</span> <span class="hljs-keyword">async</span> load(key: MyCacheKey): <span class="hljs-built_in">Promise</span>&lt;CachedObject&gt; {
+    <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> doSomething(key);
+    <span class="hljs-keyword">return</span> result;
+  }
+
+}
+
+<span class="hljs-keyword">interface</span> MyCacheKey {
+  <span class="hljs-attr">id</span>: <span class="hljs-built_in">string</span>;
+  someField: <span class="hljs-built_in">string</span>;
+  someOtherField: <span class="hljs-built_in">number</span>;
+}</code></pre>
+				<p>A cache defined with such a key will compute a hash of your key objects to use as the internal cache key. You can also
+					define a custom <code>keyToString</code> function, transforming your key into a unique string identifying your key. It can be as
+				simple as an ID, or a combination of several parameters that define your key, like:</p>
+				<pre><code class="language-typescript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomCache</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CacheLoader</span>&lt;<span class="hljs-title">Identifier</span>, <span class="hljs-title">string</span>&gt; </span>{
+
+  <span class="hljs-keyword">protected</span> keyToString(identifier: Identifier): <span class="hljs-built_in">string</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${identifier.code}</span>-<span class="hljs-subst">${identifier.language}</span>`</span>;
+  }
+
+}</code></pre>
+				<a href="#using-cacheable-typescript-decorator" id="using-cacheable-typescript-decorator" style="color: inherit; text-decoration: none;">
+					<h3>Using @Cacheable Typescript decorator</h3>
+				</a>
+				<p>When using Typescript, you have access to a powerful shortcut to caching: you can annotate your class method
+					with <code>@Cacheable</code>. This automatically wraps your method call with a caching layer, meaning when calling your method, **
+					Cache Flow**
+					will take care of checking for an existing cached value, and otherwise will execute the method to get one. With this,
+					adding a cache is completely transparent for anyone calling this method, without any other required change than
+				annotating your method with the <code>@Cacheable</code> decorator.</p>
+				<p>Here is an example:</p>
+				<pre><code class="language-typescript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CacheableExampleClass</span> </span>{
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">readonly</span> id: <span class="hljs-built_in">string</span>;
+
+  <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params">id: <span class="hljs-built_in">string</span></span>)</span> {
+    <span class="hljs-built_in">this</span>.id = id;
+  }
+
+  <span class="hljs-meta">@Cacheable</span>()
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> getResult(prefix: <span class="hljs-built_in">string</span>, <span class="hljs-attr">value</span>: <span class="hljs-built_in">number</span>): <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">string</span>&gt; {
+    <span class="hljs-keyword">await</span> sleep(<span class="hljs-number">100</span>);
+    <span class="hljs-keyword">const</span> now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-built_in">this</span>.id}</span>-<span class="hljs-subst">${prefix}</span>-<span class="hljs-subst">${now.getTime()}</span><span class="hljs-subst">${now.getMilliseconds()}</span>-<span class="hljs-subst">${value * <span class="hljs-number">3</span>}</span>`</span>;
+  }
+
+}</code></pre>
+				<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/CacheableExampleClass.ts">code example</a></em></p>
+				<p><code>@Cacheable</code> provides the same flexibility as manually declaring a class cache: you can configure the <code>cacheId</code>,
+					<code>expirationTime</code> and <code>maxSize</code> parameters, as well as the <code>argsToKey</code>, <code>serialize</code> and <code>deserialize</code> functions (see
+				documentation below).</p>
+				<p>By default, <code>@Cacheable</code> will use <a href="https://www.npmjs.com/package/object-hash">object-hash</a> on the array of arguments to
+					create a cache key. In cases where you have more complex objects as your cache key, and only want to use a subset of
+				these objects, you can define a custom way of inferring the cache key from arguments:</p>
+				<pre><code class="language-typescript"><span class="hljs-meta">@Cacheable</span>({
+  <span class="hljs-attr">argsToKey</span>: <span class="hljs-function">(<span class="hljs-params">user: User</span>) =&gt;</span> {
+    user.id, user.lastUpdate
+  },
+  <span class="hljs-attr">options</span>: {
+    <span class="hljs-attr">expirationTime</span>: <span class="hljs-number">3600</span>
+  }
+})</code></pre>
+				<p>If <code>argsToKey</code> returns a string, this string is directly used a the cache key. Otherwise, the cache computes a hash of
+				the returned value and uses it as the cache key.</p>
+				<a href="#more-examples" id="more-examples" style="color: inherit; text-decoration: none;">
+					<h3>More examples</h3>
+				</a>
+				<p>You can find more examples in the <code>examples</code> folder of the source repository:
+				<a href="https://github.com/abourdin/cache-flow/tree/master/examples">https://github.com/abourdin/cache-flow/tree/master/examples</a></p>
+				<a href="#configuration" id="configuration" style="color: inherit; text-decoration: none;">
+					<h2>Configuration</h2>
+				</a>
+				<a href="#configure-redis" id="configure-redis" style="color: inherit; text-decoration: none;">
+					<h3>Configure Redis</h3>
+				</a>
+				<p><strong>Cache Flow</strong> also supports distributed caching by using Redis as the caching engine. To have your cache instances use
+					Redis behind the scenes, <strong>Cache Flow</strong> must be configured as part of the startup of your application, before any cache
+				is instantiated.</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { CacheFlow } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;cache-flow&#x27;</span>;
+
+CacheFlow.configure({
+  <span class="hljs-attr">redis</span>: {
+    <span class="hljs-attr">host</span>: <span class="hljs-string">&#x27;your.redis.server.com&#x27;</span>,
+    <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span>
+  }
+});
+
+<span class="hljs-comment">// all set, now you can start caching!</span>
+<span class="hljs-keyword">const</span> cache = <span class="hljs-keyword">new</span> SimpleCache();</code></pre>
+				<p>But what if your Redis server has to restart or goes down? Don&#39;t worry, <strong>Cache Flow</strong> has got you covered!</p>
+				<p>In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache,
+					until your Redis server is back online. As soon as your caches can reconnect, they&#39;ll switch back to using Redis. This
+				way, you will never experience any interruption in your caching layer.</p>
+				<a href="#custom-logger" id="custom-logger" style="color: inherit; text-decoration: none;">
+					<h3>Custom Logger</h3>
+				</a>
+				<p><strong>Cache Flow</strong> comes with a default logger which can log various information about what happens with your caches (when
+				values are get, loaded, some errors, ...)</p>
+				<p>By default, <strong>Cache Flow</strong> will only log errors to <code>console.error</code>, but you can provide your own logger in the initial
+					configuration of the library, like <a href="https://www.npmjs.com/package/log4js">log4js</a>
+				, <a href="https://www.npmjs.com/package/winston">winston</a>, ...</p>
+				<p>See the example below with <a href="https://www.npmjs.com/package/log4js">log4js</a>:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { CacheFlow } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;cache-flow&#x27;</span>;
+<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> log4js <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;log4js&#x27;</span>;
+
+CacheFlow.configure({
+  <span class="hljs-attr">logger</span>: log4js.getLogger()
+});</code></pre>
+				<p>You can also simply pass the <code>console</code> to get all logs output to the stdout, including <code>debug</code> logs, like so:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { CacheFlow } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;cache-flow&#x27;</span>;
+
+CacheFlow.configure({
+  <span class="hljs-attr">logger</span>: <span class="hljs-built_in">console</span>
+});</code></pre>
+				<a href="#detailed-configuration" id="detailed-configuration" style="color: inherit; text-decoration: none;">
+					<h3>Detailed configuration</h3>
+				</a>
+				<ol>
+					<li><code>CacheLoader</code> constructor parameters:</li>
+				</ol>
+				<ul>
+					<li><code>cacheId</code>: a unique string identifying each cache. If shared between 2 caches or more, their keys might conflict, and
+					cause deserialization errors when trying to get a key stored by another cache.</li>
+					<li><code>options</code>:<ul>
+							<li><code>expirationTime</code>: the time in seconds during which cache entries will be retained before being evicted</li>
+							<li><code>maxSize</code>: the maximum number of entries stored in the cache when running in LRU mode. Once maximum is reached and
+							a new entry is added to the cache, it replaces the least recently used.</li>
+						</ul>
+					</li>
+				</ul>
+				<ol start="2">
+					<li><code>CacheFlow.configure(configuration)</code> configuration object parameter:</li>
+				</ol>
+				<ul>
+					<li><code>redis</code>:<ul>
+							<li><code>host</code>: the Redis server hostname</li>
+							<li><code>port</code>: the Redis server port (default: 6379)</li>
+							<li><code>db</code>: the Redis database index to use (default: 0)</li>
+						</ul>
+					</li>
+					<li><code>logger</code>: a logger instance matching <code>LoggerInterface</code></li>
+				</ul>
+				<a href="#custom-serializationdeserialization" id="custom-serializationdeserialization" style="color: inherit; text-decoration: none;">
+					<h2>Custom serialization/deserialization</h2>
+				</a>
+				<p>When extending <code>CacheLoader</code>, your cache will come with default serialization and deserialization implementations for
+					the
+					<code>serialize</code> and <code>deserialize</code> methods, which take care of storing objects and arrays as JSON in the inner cache, and
+				transform them back when getting values out of the cache.</p>
+				<p>In the case where you need to implement your own serialization and deserialization, for example to cache specific
+				framework classes or entities, your <code>CacheLoader</code> implementation can override <code>serialize</code> and <code>deserialize</code> methods:</p>
+				<pre><code class="language-typescript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyEntityCache</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CacheLoader</span>&lt;<span class="hljs-title">string</span>, <span class="hljs-title">MyEntity</span>&gt; </span>{
+
+  <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-built_in">super</span>(<span class="hljs-string">&#x27;my-entity-cache&#x27;</span>, {
+      <span class="hljs-attr">expirationTime</span>: <span class="hljs-number">3600</span> <span class="hljs-comment">// 1h in seconds</span>
+    });
+  }
+
+  <span class="hljs-keyword">protected</span> <span class="hljs-keyword">async</span> load(id: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">Promise</span>&lt;MyEntity&gt; {
+    <span class="hljs-keyword">const</span> entity = <span class="hljs-keyword">await</span> repository.findById(id);
+    <span class="hljs-keyword">return</span> entity;
+  }
+
+  <span class="hljs-keyword">protected</span> serialize(entity: MyEntity): <span class="hljs-built_in">any</span> {
+    <span class="hljs-keyword">return</span> entity.toJSON();
+  }
+
+  <span class="hljs-keyword">protected</span> deserialize(serialized: <span class="hljs-built_in">any</span>): MyEntity {
+    <span class="hljs-keyword">return</span> MyEntity.fromJSON(serialized);
+  }
+
+}</code></pre>
+				<a href="#use-with-dependency-injection" id="use-with-dependency-injection" style="color: inherit; text-decoration: none;">
+					<h2>Use with dependency injection</h2>
+				</a>
+				<p><strong>Cache Flow</strong> is compatible with your favorite Typescript DI framework,
+					like <a href="https://www.npmjs.com/package/typedi">typedi</a>,
+				<a href="https://www.npmjs.com/package/tsyringe">tsyringe</a>, <a href="https://www.npmjs.com/package/inversify">InversifyJS</a>...</p>
+				<p>For example, with typedi:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { CacheLoader } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;cache-flow&#x27;</span>;
+<span class="hljs-keyword">import</span> { Inject, Service } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;typedi&#x27;</span>;
+
+<span class="hljs-meta">@Service</span>()
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserCache</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CacheLoader</span>&lt;<span class="hljs-title">string</span>, <span class="hljs-title">User</span>&gt; </span>{
+
+  <span class="hljs-meta">@Inject</span>()
+  <span class="hljs-keyword">private</span> userService: UserService;
+
+  <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-built_in">super</span>(<span class="hljs-string">&#x27;user-cache&#x27;</span>, {
+      <span class="hljs-attr">expirationTime</span>: <span class="hljs-number">3600</span> <span class="hljs-comment">// 1h in seconds</span>
+    });
+  }
+
+  <span class="hljs-keyword">protected</span> <span class="hljs-keyword">async</span> load(userId: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">Promise</span>&lt;User&gt; {
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.userService.getUserById(userId);
+  }
+
+}</code></pre>
+				<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/DIExampleCache.ts">code example</a></em></p>
+				<a href="#notes" id="notes" style="color: inherit; text-decoration: none;">
+					<h2>Notes</h2>
+				</a>
+				<ul>
+					<li>LRU cache implementation used by <strong>Cache Flow</strong> supports
+						using <a href="https://nodejs.org/docs/latest-v13.x/api/cluster.html">cluster</a>, so if running in cluster mode, your caches
+						will be shared by all workers. Only requirement is that <code>CacheFlow.configure</code>
+					method must be called from the master thread. In environment not running cluster, a standard LRU cache is used.</li>
+				</ul>
+				<a href="#cacheflow-reference" id="cacheflow-reference" style="color: inherit; text-decoration: none;">
+					<h2>CacheFlow Reference</h2>
+				</a>
+				<p><a href="https://abourdin.github.io/cache-flow/modules.html">Full reference</a></p>
+				<a href="#cacheloaderltk-vgt-methods" id="cacheloaderltk-vgt-methods" style="color: inherit; text-decoration: none;">
+					<h3>CacheLoader&lt;K, V&gt; methods</h3>
+				</a>
+				<p><a href="https://abourdin.github.io/cache-flow/classes/cacheloader.html">Full reference</a></p>
+				<table>
+					<thead>
+						<tr>
+							<th>Method</th>
+							<th>Example</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td><code>async get(key: K, force: boolean): Promise&lt;V&gt;</code></td>
+							<td><code>myCache.get(&#39;myKey&#39;)</code></td>
+							<td>Gets a value from the cache. If force is set to true, a new value is loaded without checking existence in the cache.</td>
+						</tr>
+						<tr>
+							<td><code>async getWithMetadata(key: K, force: boolean): Promise&lt;Metadata&lt;V&gt;&gt;</code></td>
+							<td><code>myCache.get(&#39;myKey&#39;)</code></td>
+							<td>Gets a value from the cache with additional metadata (loading time, caching status, ...). If force is set to true, a new value is loaded without checking existence in the cache.</td>
+						</tr>
+						<tr>
+							<td><code>async set(key: K, value: V): Promise&lt;void&gt;</code></td>
+							<td><code>myCache.set(&#39;myKey&#39;, &#39;myValue&#39;)</code></td>
+							<td>Sets a value from the cache for the given key</td>
+						</tr>
+						<tr>
+							<td><code>async delete(key: K): Promise&lt;void&gt;</code></td>
+							<td><code>myCache.delete(&#39;myKey&#39;)</code></td>
+							<td>Evicts a key from the cache</td>
+						</tr>
+						<tr>
+							<td><code>async exists(key: K): Promise&lt;boolean&gt;</code></td>
+							<td><code>myCache.exists(&#39;myKey&#39;)</code></td>
+							<td>Checks whether a value exists in the cache for the given key</td>
+						</tr>
+						<tr>
+							<td><code>async reset(): Promise&lt;void&gt;</code></td>
+							<td><code>myCache.reset()</code></td>
+							<td>Clears all values from the cache</td>
+						</tr>
+						<tr>
+							<td><code>getCacheId(): string</code></td>
+							<td>myCache.getCacheId()`</td>
+							<td>Gets the cache&#39;s ID</td>
+						</tr>
+						<tr>
+							<td><code>getCacheDefinition(): CacheDefinition</code></td>
+							<td><code>myCache.getCacheDefinition()</code></td>
+							<td>Gets the cache definition</td>
+						</tr>
+				</tbody></table>
+				<a href="#cacheflow-methods" id="cacheflow-methods" style="color: inherit; text-decoration: none;">
+					<h3>CacheFlow methods</h3>
+				</a>
+				<p><a href="https://abourdin.github.io/cache-flow/classes/cacheflow.html">Full reference</a></p>
+				<table>
+					<thead>
+						<tr>
+							<th>Method</th>
+							<th>Example</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td><code>static configure(configuration: CacheFlowConfiguration)</code></td>
+							<td><code>CacheFlow.configure({redis: {port: 1234}})</code></td>
+							<td>Sets the global configuration for Cache Flow and all subsequently instantiated caches</td>
+						</tr>
+						<tr>
+							<td><code>static get(cacheId: string): Promise&lt;CacheLoader&lt;any, any&gt;&gt;</code></td>
+							<td><code>CacheFlow.get(&#39;my-cache&#39;)</code></td>
+							<td>Gets cache with given cache ID. Cannot access caches created using @Cacheable annotation.</td>
+						</tr>
+						<tr>
+							<td><code>static async delete(cacheId: string, key: any): Promise&lt;void&gt;</code></td>
+							<td><code>CacheFlow.delete(&#39;my-cache&#39;, &#39;myKey&#39;)</code></td>
+							<td>Deletes entry for given key in cache with given cache ID</td>
+						</tr>
+						<tr>
+							<td><code>static async reset(cacheId: string): Promise&lt;void&gt;</code></td>
+							<td><code>CacheFlow.reset(&#39;my-cache&#39;)</code></td>
+							<td>Resets cache with given cache ID</td>
+						</tr>
+						<tr>
+							<td><code>static async resetAll(): Promise&lt;void&gt;</code></td>
+							<td><code>CacheFlow.resetAll()</code></td>
+							<td>Clears all caches</td>
+						</tr>
+						<tr>
+							<td><code>static getInstances(): CacheLoader&lt;any, any&gt;[]</code></td>
+							<td><code>CacheFlow.getInstances()</code></td>
+							<td>Gets all cache instances (except the ones created using @Cacheable annotation)</td>
+						</tr>
+				</tbody></table>
+				<a href="#project-information" id="project-information" style="color: inherit; text-decoration: none;">
+					<h1>Project Information</h1>
+				</a>
+				<a href="#author" id="author" style="color: inherit; text-decoration: none;">
+					<h2>Author</h2>
+				</a>
+				<p>👤 <strong>Alexandre Bourdin <a href="mailto:&#99;&#x6f;&#x6e;&#x74;&#x61;&#99;&#116;&#64;&#97;&#x62;&#111;&#117;&#x72;&#x64;&#105;&#x6e;&#x2e;&#x63;&#111;&#109;">&#99;&#x6f;&#x6e;&#x74;&#x61;&#99;&#116;&#64;&#97;&#x62;&#111;&#117;&#x72;&#x64;&#105;&#x6e;&#x2e;&#x63;&#111;&#109;</a></strong></p>
+				<ul>
+					<li>Github: <a href="https://github.com/abourdin">@abourdin</a></li>
+					<li>Website: <a href="https://www.abourdin.com">https://www.abourdin.com</a></li>
+					<li>LinkedIn: <a href="https://linkedin.com/in/alexandre-bourdin-38090844">@alexandre-bourdin-38090844</a></li>
+				</ul>
+				<a href="#show-your-support" id="show-your-support" style="color: inherit; text-decoration: none;">
+					<h2>Show your support</h2>
+				</a>
+				<p>Give a ⭐️ if this project helped you!</p>
+			</div>
+			<!--{&quot;options&quot;:&quot;typedoc.json&quot;,&quot;tsconfig&quot;:&quot;/home/circleci/project&quot;,&quot;entryPoints&quot;:[&quot;./src/index.ts&quot;],&quot;exclude&quot;:[],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[&quot;typedoc-neo-theme&quot;],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;npm&quot;,&quot;url&quot;:&quot;https://www.npmjs.com/package/cache-flow&quot;},{&quot;label&quot;:&quot;GitHub&quot;,&quot;url&quot;:&quot;https://github.com/abourdin/cache-flow&quot;}],&quot;source&quot;:[{&quot;path&quot;:&quot;https://github.com/abourdin/cache-flow/blob/master/src/&quot;,&quot;line&quot;:&quot;L&quot;}]}-->
+		</div>
+		<div class="col-2 col-menu secondary-menu">
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class root">
+						<a href="classes/cacheflow.html" class="tsd-kind-icon">Cache<wbr>Flow</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter root">
+						<a href="classes/cacheloader.html" class="tsd-kind-icon">Cache<wbr>Loader</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="interfaces/cachedefinition.html" class="tsd-kind-icon">Cache<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="interfaces/cacheoptions.html" class="tsd-kind-icon">Cache<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="interfaces/cacheableparams.html" class="tsd-kind-icon">Cacheable<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-function root">
+						<a href="modules.html#cacheable" class="tsd-kind-icon">Cacheable</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
