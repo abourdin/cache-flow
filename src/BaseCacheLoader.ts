@@ -64,7 +64,7 @@ export abstract class BaseCacheLoader<K extends Object, V extends Object> {
     }
   }
 
-  protected abstract async load(key: K): Promise<V>;
+  protected abstract load(key: K): Promise<V>;
 
   /**
    * Gets a cached value.

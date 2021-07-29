@@ -200,3 +200,6 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Redis Server
+dump.rdb
