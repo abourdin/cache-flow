@@ -23,7 +23,8 @@
   ],
   "typedocOptions": {
     "entryPoints": "./src/index.ts",
-    "mode": "library",
-    "out": "docs"
+    "out": "docs",
+    "readme": "./README.md",
+    "theme": "default"
   }
 }
