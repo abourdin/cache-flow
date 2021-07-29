@@ -1,13 +1,13 @@
 {
   "name": "cache-flow",
-  "version": "1.9.0",
+  "version": "1.8.0",
   "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
   "scripts": {
     "clean": "rimraf build coverage test-results docs",
     "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
     "test": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --ui bdd --slow 300",
     "posttest": "nyc report --reporter=json > coverage/coverage.json",
-    "docs": "typedoc --options typedoc.json --plugin typedoc-neo-theme --theme ./node_modules/typedoc-neo-theme/bin/default",
+    "docs": "typedoc --theme default",
     "package": "copyfiles -u 3 \"build/compiled/src/**/*\" build/package && copyfiles package.json README.md build/package"
   },
   "homepage": "https://abourdin.github.io/cache-flow/",
@@ -53,8 +53,7 @@
     "rimraf": "^3.0.2",
     "ts-mocha": "^8.0.0",
     "typedi": "^0.8.0",
-    "typedoc": "^0.21.4",
-    "typedoc-neo-theme": "^1.1.1"
+    "typedoc": "^0.21.4"
   },
   "nyc": {
     "check-coverage": true,
