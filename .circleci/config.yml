@@ -81,7 +81,9 @@ jobs:
             mkdir -p ./test-results/mocha
       - run:
           name: Run tests
-          command: npm run test
+          command: |
+            npm run test
+            npm run docs
           timeout: 600
       - codecov/upload:
           file: coverage/*.json
