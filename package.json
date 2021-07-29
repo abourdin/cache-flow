@@ -1,6 +1,6 @@
 {
   "name": "cache-flow",
-  "version": "1.7.4",
+  "version": "1.8.0",
   "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
   "scripts": {
     "clean": "rimraf build coverage test-results docs",
@@ -28,24 +28,24 @@
   "types": "index.d.ts",
   "dependencies": {
     "cluster": "^0.7.7",
-    "date-fns": "^2.16.1",
-    "ioredis": "^4.19.2",
-    "lru-cache-for-clusters-as-promised": "^1.5.24",
-    "object-hash": "^2.0.3",
-    "typescript": "^4.0.5"
+    "date-fns": "^2.23.0",
+    "ioredis": "^4.27.6",
+    "lru-cache-for-clusters-as-promised": "^1.7.1",
+    "object-hash": "^2.2.0",
+    "typescript": "^4.3.5"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/chai": "^4.2.14",
-    "@types/ioredis": "^4.17.7",
-    "@types/mocha": "^8.0.4",
-    "@types/node": "^14.14.7",
-    "@types/object-hash": "^1.3.4",
+    "@types/ioredis": "^4.26.6",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^16.4.6",
+    "@types/object-hash": "^2.1.1",
     "@types/redis": "^2.8.28",
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "copyfiles": "^2.4.0",
     "log4js": "^6.3.0",
-    "mocha": "^8.2.1",
+    "mocha": "^8.4.0",
     "mocha-junit-reporter": "^2.0.0",
     "mocha-multi-reporters": "^1.5.1",
     "nyc": "^15.1.0",
@@ -53,15 +53,15 @@
     "rimraf": "^3.0.2",
     "ts-mocha": "^8.0.0",
     "typedi": "^0.8.0",
-    "typedoc": "^0.20.0-beta.8",
-    "typedoc-neo-theme": "^1.0.10"
+    "typedoc": "^0.21.4",
+    "typedoc-neo-theme": "^1.1.1"
   },
   "nyc": {
     "check-coverage": true,
-    "statements": 80,
-    "branches": 67,
-    "functions": 75,
-    "lines": 80,
+    "statements": 87,
+    "branches": 73,
+    "functions": 83,
+    "lines": 86,
     "include": [
       "src/**/*"
     ],

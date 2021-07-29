@@ -26,7 +26,7 @@ the caching features of this library into a single line of code, completely tran
     - [Custom logger](#custom-logger)
     - [Detailed configuration](#detailed-configuration)
 * [Custom serialization/deserialization](#custom-serializationdeserialization)
-* [Use with dependency injection](#use-with-dependency-injection)
+* [Usage with dependency injection](#use-with-dependency-injection)
 * [Cache Flow Reference](#cacheflow-reference)
     - [CacheLoader<K, V> methods](#cacheloaderk-v-methods)
     - [CacheFlow methods](#cacheflow-methods)
@@ -192,18 +192,17 @@ class CustomCache extends CacheLoader<Identifier, string> {
   protected keyToString(identifier: Identifier): string {
     return `${identifier.code}-${identifier.language}`;
   }
-  
+
 }
 ```
 
 ### Using @Cacheable Typescript decorator
 
 When using Typescript, you have access to a powerful shortcut to caching: you can annotate your class method
-with `@Cacheable`. This automatically wraps your method call with a caching layer, meaning when calling your method, **
-Cache Flow**
-will take care of checking for an existing cached value, and otherwise will execute the method to get one. With this,
-adding a cache is completely transparent for anyone calling this method, without any other required change than
-annotating your method with the `@Cacheable` decorator.
+with `@Cacheable`. This automatically wraps your method call with a caching layer, meaning when calling your method,
+**Cache Flow** will take care of checking for an existing cached value, and otherwise will execute the method to get
+one. With this, adding a cache is completely transparent for anyone calling this method, without any other required
+change than annotating your method with the `@Cacheable` decorator.
 
 Here is an example:
 
@@ -367,7 +366,7 @@ class MyEntityCache extends CacheLoader<string, MyEntity> {
 }
 ```
 
-## Use with dependency injection
+## Usage with dependency injection
 
 **Cache Flow** is compatible with your favorite Typescript DI framework,
 like [typedi](https://www.npmjs.com/package/typedi),
