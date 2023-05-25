@@ -1,4 +1,5 @@
 import { assert } from 'chai';
+import 'reflect-metadata';
 import { Container } from 'typedi';
 import { CacheableCustomSerializationExample } from '../examples/CacheableCustomSerializationExample';
 import { CacheableExampleClass } from '../examples/CacheableExampleClass';
