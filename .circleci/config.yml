@@ -1,12 +1,12 @@
 version: 2.1
 orbs:
-  node: circleci/node@3.0.0
+  node: circleci/node@5.1.0
   codecov: codecov/codecov@1.0.2
 
 jobs:
   release:
     docker:
-      - image: cimg/node:12.18.3
+      - image: cimg/node:20.2.0
     steps:
       - checkout
       - run:
@@ -32,7 +32,7 @@ jobs:
 
   prepare-dependencies:
     docker:
-      - image: cimg/node:12.18.3
+      - image: cimg/node:20.2.0
     steps:
       - checkout
       - run:
@@ -51,7 +51,7 @@ jobs:
 
   build:
     docker:
-      - image: cimg/node:12.18.3
+      - image: cimg/node:20.2.0
     steps:
       - checkout
       - restore_cache:
@@ -65,7 +65,7 @@ jobs:
             - ./*
   test:
     docker:
-      - image: cimg/node:12.18.3
+      - image: cimg/node:20.2.0
     steps:
       - checkout
       - restore_cache:
@@ -81,18 +81,28 @@ jobs:
             mkdir -p ./test-results/mocha
       - run:
           name: Run tests
-          command: |
-            npm run test
-            npm run docs
+          command: npm run test
           timeout: 600
       - codecov/upload:
           file: coverage/*.json
       - store_test_results:
           path: test-results
 
+  dry-run-docs:
+    docker:
+      - image: cimg/node:20.2.0
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
+      - run:
+          name: Dry-run doc generation
+          command: npm run docs
+          timeout: 60
+
   publish:
     docker:
-      - image: cimg/node:12.18.3
+      - image: cimg/node:20.2.0
     steps:
       - attach_workspace:
           at: .
@@ -133,6 +143,9 @@ workflows:
           requires:
             - prepare-dependencies
       - test:
+          requires:
+            - prepare-dependencies
+      - dry-run-docs:
           requires:
             - prepare-dependencies
   build-test-publish:

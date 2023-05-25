@@ -8,7 +8,7 @@ import { redisClientProvider } from './redis/RedisClientProvider';
 /**
  * Cache class allowing to create caches with automatic cache loading and delegates.
  */
-export abstract class BaseCacheLoader<K extends Object, V extends Object> {
+export abstract class BaseCacheLoader<K, V> {
   private readonly cacheDefinition: CacheDefinition;
   private readonly cacheOptions: CacheOptions;
   private delegate: LRUCache | RedisCache;

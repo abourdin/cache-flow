@@ -1,15 +1,7 @@
 {
   "name": "cache-flow",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
-  "scripts": {
-    "clean": "rimraf build coverage test-results docs",
-    "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
-    "test": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --ui bdd --slow 300",
-    "posttest": "nyc report --reporter=json > coverage/coverage.json",
-    "docs": "typedoc --theme default",
-    "package": "copyfiles -u 3 \"build/compiled/src/**/*\" build/package && copyfiles package.json README.md build/package"
-  },
   "homepage": "https://abourdin.github.io/cache-flow/",
   "repository": "https://github.com/abourdin/cache-flow",
   "keywords": [
@@ -26,34 +18,43 @@
   "license": "ISC",
   "main": "index.js",
   "types": "index.d.ts",
+  "scripts": {
+    "clean": "rimraf build coverage test-results docs",
+    "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
+    "test": "nyc ts-mocha \"./test/*Test.ts\" \"./test/**/*Test.ts\" -p ./tsconfig.json --extension js,jsx,ts,tsx --exit --recursive --reporter mocha-multi-reporters --reporter-options configFile=mocha-config.json --ui bdd --slow 300",
+    "posttest": "nyc report --reporter=json > coverage/coverage.json",
+    "docs": "typedoc --theme default",
+    "package": "copyfiles -u 3 \"build/compiled/src/**/*\" build/package && copyfiles package.json README.md build/package"
+  },
   "dependencies": {
     "cluster": "^0.7.7",
     "date-fns": "^2.23.0",
     "ioredis": "^4.27.6",
     "lru-cache-for-clusters-as-promised": "^1.7.1",
-    "object-hash": "^2.2.0",
-    "typescript": "^4.3.5"
+    "object-hash": "^2.2.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/chai": "^4.2.14",
     "@types/ioredis": "^4.26.6",
-    "@types/mocha": "^8.0.0",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^16.4.6",
     "@types/object-hash": "^2.1.1",
     "@types/redis": "^2.8.28",
     "chai": "^4.3.4",
     "copyfiles": "^2.4.0",
     "log4js": "^6.3.0",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mocha-junit-reporter": "^2.0.0",
     "mocha-multi-reporters": "^1.5.1",
     "nyc": "^15.1.0",
     "redis-server": "^1.2.2",
+    "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "ts-mocha": "^8.0.0",
-    "typedi": "^0.8.0",
-    "typedoc": "^0.21.4"
+    "ts-mocha": "^10.0.0",
+    "typedi": "^0.10.0",
+    "typedoc": "^0.24.7",
+    "typescript": "^5.0.4"
   },
   "nyc": {
     "check-coverage": true,
