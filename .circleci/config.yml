@@ -1,12 +1,12 @@
 version: 2.1
 orbs:
-  node: circleci/node@5.1.0
-  codecov: codecov/codecov@1.0.2
+  node: circleci/node@5.2.0
+  codecov: codecov/codecov@3.3.0
 
 jobs:
   release:
     docker:
-      - image: cimg/node:20.2.0
+      - image: cimg/node:20.10.0
     steps:
       - checkout
       - run:
@@ -32,7 +32,7 @@ jobs:
 
   prepare-dependencies:
     docker:
-      - image: cimg/node:20.2.0
+      - image: cimg/node:20.10.0
     steps:
       - checkout
       - run:
@@ -51,7 +51,7 @@ jobs:
 
   build:
     docker:
-      - image: cimg/node:20.2.0
+      - image: cimg/node:20.10.0
     steps:
       - checkout
       - restore_cache:
@@ -65,7 +65,7 @@ jobs:
             - ./*
   test:
     docker:
-      - image: cimg/node:20.2.0
+      - image: cimg/node:20.10.0
     steps:
       - checkout
       - restore_cache:
@@ -90,7 +90,7 @@ jobs:
 
   dry-run-docs:
     docker:
-      - image: cimg/node:20.2.0
+      - image: cimg/node:20.10.0
     steps:
       - checkout
       - restore_cache:
@@ -102,7 +102,7 @@ jobs:
 
   publish:
     docker:
-      - image: cimg/node:20.2.0
+      - image: cimg/node:20.10.0
     steps:
       - attach_workspace:
           at: .
