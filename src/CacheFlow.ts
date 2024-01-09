@@ -1,8 +1,5 @@
-import LRUCache from 'lru-cache-for-clusters-as-promised';
 import { CacheLoader } from './CacheLoader';
 import { CacheFlowConfiguration, DefaultLogger, LoggerInterface, RedisCacheConfiguration } from './config/CacheFlowConfiguration';
-
-const cluster = require('cluster');
 
 export class CacheFlow {
   private static readonly instances: Map<string, CacheLoader<any, any>> = new Map();
@@ -13,10 +10,6 @@ export class CacheFlow {
   };
 
   public static configure(configuration: CacheFlowConfiguration) {
-    if (cluster.isMaster) {
-      LRUCache.init();
-    }
-
     this.configuration = { ...this.configuration, ...configuration };
     if (!configuration.logger) {
       this.configuration.logger = new DefaultLogger();

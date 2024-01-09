@@ -27,10 +27,9 @@
     "package": "copyfiles -u 3 \"build/compiled/src/**/*\" build/package && copyfiles package.json README.md build/package"
   },
   "dependencies": {
-    "cluster": "^0.7.7",
     "date-fns": "^2.23.0",
     "ioredis": "^4.27.6",
-    "lru-cache-for-clusters-as-promised": "^1.7.1",
+    "lru-cache": "^10.1.0",
     "object-hash": "^2.2.0"
   },
   "devDependencies": {

@@ -6,12 +6,14 @@ import { sleep } from './utils/TestUtils';
 
 const RedisServer = require('redis-server');
 
+const REDIS_SERVER_PORT = 6380
+
 describe('RedisBaseCache Test', () => {
   let redisServer: any;
 
   before(async function () {
     try {
-      redisServer = new RedisServer(6379);
+      redisServer = new RedisServer(REDIS_SERVER_PORT);
       await redisServer.open();
     }
     catch (error) {
@@ -21,7 +23,7 @@ describe('RedisBaseCache Test', () => {
     CacheFlow.configure({
       redis: {
         host: '127.0.0.1',
-        port: 6379
+        port: REDIS_SERVER_PORT
       }
     });
   });
