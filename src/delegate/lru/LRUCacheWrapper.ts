@@ -1,10 +1,10 @@
-import LRUClusterCache from 'lru-cache-for-clusters-as-promised';
+import { LRUCache } from 'lru-cache';
 import { CacheOptions } from '../../BaseCacheLoader';
 
 /**
  * Cache class allowing to bind an in-memory LRU Cache.
  */
-export class LRUCache {
+export class LRUCacheWrapper {
   private readonly cacheId: string;
   private cache: any;
 
@@ -18,13 +18,10 @@ export class LRUCache {
    */
   constructor(cacheId: string, { expirationTime, maxSize = 1000 }: CacheOptions) {
     this.cacheId = cacheId;
-    this.cache = new LRUClusterCache({
-      namespace: cacheId || 'default-cache',
-      timeout: 100,
-      maxAge: expirationTime * 1000,
+    this.cache = new LRUCache({
+      ttl: expirationTime * 1000,
       max: maxSize,
-      stale: false,
-      failsafe: 'resolve'
+      allowStale: false,
     });
   }
 
@@ -88,7 +85,7 @@ export class LRUCache {
       throw new Error(`Key must be a string, got: ${key}`);
     }
     try {
-      await this.cache.del(key);
+      await this.cache.delete(key);
     }
     catch (error) {
       throw new Error(`Failed to delete entry in LRU cache '${this.cacheId}' for key '${key}': ${error.message}`);
@@ -100,7 +97,7 @@ export class LRUCache {
    */
   async reset() {
     try {
-      await this.cache.reset();
+      await this.cache.clear();
     }
     catch (error) {
       throw new Error(`Failed reset LRU cache '${this.cacheId}': ${error.message}`);

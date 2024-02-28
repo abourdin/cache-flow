@@ -1,7 +1,7 @@
 import { differenceInMilliseconds, formatDistanceStrict } from 'date-fns';
 import hash from 'object-hash';
 import { CacheFlow } from './CacheFlow';
-import { LRUCache } from './delegate/lru/LRUCache';
+import { LRUCacheWrapper } from './delegate/lru/LRUCacheWrapper';
 import { RedisCache } from './delegate/redis/RedisCache';
 import { redisClientProvider } from './redis/RedisClientProvider';
 
@@ -11,7 +11,7 @@ import { redisClientProvider } from './redis/RedisClientProvider';
 export abstract class BaseCacheLoader<K, V> {
   private readonly cacheDefinition: CacheDefinition;
   private readonly cacheOptions: CacheOptions;
-  private delegate: LRUCache | RedisCache;
+  private delegate: LRUCacheWrapper | RedisCache;
   private mode: 'LRU' | 'REDIS';
   protected isCacheable: boolean;
 
@@ -271,7 +271,7 @@ export abstract class BaseCacheLoader<K, V> {
   private switchToLRUMode(): void {
     if (this.mode !== 'LRU') {
       this.mode = 'LRU';
-      this.delegate = new LRUCache(this.getCacheId(), this.cacheOptions);
+      this.delegate = new LRUCacheWrapper(this.getCacheId(), this.cacheOptions);
     }
   }
 
