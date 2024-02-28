@@ -1,6 +1,6 @@
 {
   "name": "cache-flow",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "A library made for easy implementation of NodeJS application caches, with in-memory and Redis support",
   "homepage": "https://abourdin.github.io/cache-flow/",
   "repository": "https://github.com/abourdin/cache-flow",
