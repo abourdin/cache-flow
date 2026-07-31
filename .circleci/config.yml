@@ -140,11 +140,12 @@ jobs:
             git add docs/* && git commit -m "Updating JSDoc"
             git push -f origin docs
       - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > build/package/.npmrc
-      - run:
           name: Publish Project
           command: |
+            # Trusted publishing: npm exchanges this OIDC token for short-lived
+            # credentials, so no npm token is stored in the project. The aud
+            # claim is fixed by npm and is the only claim CircleCI lets us set.
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
             cd build/package
             npm publish
 
