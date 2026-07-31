@@ -2,6 +2,7 @@ import { assert } from 'chai';
 import 'reflect-metadata';
 import { Container } from 'typedi';
 import { CacheableCustomSerializationExample } from '../examples/CacheableCustomSerializationExample';
+import { CacheableDeprecatedKeyToStringExample } from '../examples/CacheableDeprecatedKeyToStringExample';
 import { CacheableExampleClass } from '../examples/CacheableExampleClass';
 import { DICacheableExampleClass } from '../examples/DICacheableExampleClass';
 import { CacheFlow } from '../src';
@@ -107,6 +108,19 @@ describe('Cacheable Test', () => {
     const result1 = await instance.getResult('foo', 123);
     const result2 = await instance.getResult('foo', 123);
     assert.deepEqual(result1, result2);
+  });
+
+  it('test cacheable with deprecated keyToString option', async () => {
+    const instance = new CacheableDeprecatedKeyToStringExample();
+
+    // both users share the same id, which is what keyToString maps them to, so they hit the same entry
+    const value1 = await instance.getResult({ id: 'id-123', username: 'john-doe' });
+    const value2 = await instance.getResult({ id: 'id-123', username: 'jane-doe' });
+    assert.equal(value1, value2);
+
+    // a different id must resolve to a different entry
+    const value3 = await instance.getResult({ id: 'id-456', username: 'john-doe' });
+    assert.notEqual(value1, value3);
   });
 
 });

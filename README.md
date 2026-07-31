@@ -20,13 +20,16 @@ the caching features of this library into a single line of code, completely tran
     - [A first simple cache](#a-first-simple-cache)
     - [A more advanced example](#a-more-advanced-example)
     - [Using @Cacheable Typescript decorator](#using-cacheable-typescript-decorator)
+    - [One cache per method, shared by all instances](#one-cache-per-method-shared-by-all-instances)
     - [More examples](#more-examples)
 * [Configuration](#configuration)
     - [Configure Redis](#configure-redis)
     - [Custom logger](#custom-logger)
     - [Detailed configuration](#detailed-configuration)
 * [Custom serialization/deserialization](#custom-serializationdeserialization)
-* [Usage with dependency injection](#use-with-dependency-injection)
+* [Cached values, null and undefined](#cached-values-null-and-undefined)
+    - [Values that do not survive a JSON round-trip](#values-that-do-not-survive-a-json-round-trip)
+* [Usage with dependency injection](#usage-with-dependency-injection)
 * [Cache Flow Reference](#cacheflow-reference)
     - [CacheLoader<K, V> methods](#cacheloaderk-v-methods)
     - [CacheFlow methods](#cacheflow-methods)
@@ -108,15 +111,15 @@ class ES6ExampleCache extends CacheLoader {
 }
 ```
 
-_Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/ES6ExampleCache.ts)_
+_Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/examples/ES6ExampleCache.js)_
 
 2. **Use your cache**
 
 ```typescript
 const cache = new SimpleCache();
-const myValue = cache.get('myKey');
-setTimeout(function () {
-  const myValue2 = cache.get('myKey');
+const myValue = await cache.get('myKey');
+setTimeout(async function () {
+  const myValue2 = await cache.get('myKey');
   console.log(myValue);
   console.log(myValue2); // myValue2 has the same value as myValue!
 }, 3000);
@@ -241,7 +244,7 @@ these objects, you can define a custom way of inferring the cache key from argum
 ```typescript
 @Cacheable({
   argsToKey: (user: User) => {
-    user.id, user.lastUpdate
+    return `${user.id}-${user.lastUpdate}`;
   },
   options: {
     expirationTime: 3600
@@ -249,8 +252,38 @@ these objects, you can define a custom way of inferring the cache key from argum
 })
 ```
 
-If `argsToKey` returns a string, this string is directly used a the cache key. Otherwise, the cache computes a hash of
-the returned value and uses it as the cache key.
+If `argsToKey` returns a string, this string is directly used as the cache key. Otherwise, the cache computes a hash of
+the returned value and uses it as the cache key. Make sure your `argsToKey` function actually returns a value: one that
+returns nothing maps every call to the same cache key.
+
+### One cache per method, shared by all instances
+
+The cache backing a `@Cacheable` method is created once per decorated method, when the class is defined, and the cache
+key is derived from the method arguments only. All instances of the class therefore **share the same cache entries**, and
+two instances called with equal arguments get the same cached value even if their internal state differs:
+
+```typescript
+class Greeter {
+
+  constructor(private readonly name: string) {
+  }
+
+  @Cacheable()
+  public async greet(greeting: string): Promise<string> {
+    return `${greeting}, ${this.name}`;
+  }
+
+}
+
+await new Greeter('Alice').greet('Hello'); // 'Hello, Alice', loaded
+await new Greeter('Bob').greet('Hello');   // 'Hello, Alice' — same key, served from the cache
+```
+
+If a method's result depends on instance state, include that state in the cache key with `argsToKey`, or use a
+`CacheLoader` whose key covers it.
+
+By default, `@Cacheable` uses an `expirationTime` of 3600 seconds (1 hour), which differs from the `CacheLoader` default
+of 24 hours. Set `options.expirationTime` explicitly if you rely on a particular value.
 
 ### More examples
 
@@ -279,11 +312,28 @@ CacheFlow.configure({
 const cache = new SimpleCache();
 ```
 
+Both `host` and `port` are required. `configure` throws if a `redis` configuration is given with only one of them, rather
+than leaving your caches silently local to each process:
+
+```typescript
+CacheFlow.configure({
+  redis: {
+    host: 'your.redis.server.com'
+    // no port: throws Error: Invalid Cache Flow Redis configuration: both 'host' and 'port' are required
+  }
+});
+```
+
+Omitting the `redis` block entirely is still perfectly valid, and keeps all caches in in-memory LRU mode.
+
 But what if your Redis server has to restart or goes down? Don't worry, **Cache Flow** has got you covered!
 
 In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache,
 until your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This
-way, you will never experience any interruption in your caching layer.
+way, your caching layer keeps serving requests throughout.
+
+Note that each switch between Redis and LRU starts from an empty cache, so the first `get` for any given key after a
+switch calls your loader again. Availability is preserved; cached entries are not carried across.
 
 ### Custom Logger
 
@@ -322,17 +372,20 @@ CacheFlow.configure({
 - `cacheId`: a unique string identifying each cache. If shared between 2 caches or more, their keys might conflict, and
   cause deserialization errors when trying to get a key stored by another cache.
 - `options`:
-    * `expirationTime`: the time in seconds during which cache entries will be retained before being evicted
-    * `maxSize`: the maximum number of entries stored in the cache when running in LRU mode. Once maximum is reached and
-      a new entry is added to the cache, it replaces the least recently used.
+    * `expirationTime`: the time in seconds during which cache entries will be retained before being evicted (default:
+      86400, i.e. 24 hours). Note that `@Cacheable` defaults to 3600 (1 hour) instead.
+    * `maxSize`: the maximum number of entries stored in the cache when running in LRU mode (default: 1000). Once maximum
+      is reached and a new entry is added to the cache, it replaces the least recently used. This option has no effect in
+      Redis mode, where entry count is bounded by your Redis server configuration.
 
 2. `CacheFlow.configure(configuration)` configuration object parameter:
 
-- `redis`:
+- `redis`: optional. When given, both `host` and `port` are required, and `configure` throws otherwise.
     * `host`: the Redis server hostname
-    * `port`: the Redis server port (default: 6379)
+    * `port`: the Redis server port
     * `db`: the Redis database index to use (default: 0)
-- `logger`: a logger instance matching `LoggerInterface`
+- `logger`: a logger instance matching `LoggerInterface`. When `configure` is called without a `logger`, the logger is
+  reset to the default one, which only writes errors to `console.error`.
 
 ## Custom serialization/deserialization
 
@@ -368,6 +421,57 @@ class MyEntityCache extends CacheLoader<string, MyEntity> {
 
 }
 ```
+
+## Cached values, null and undefined
+
+**Cache Flow** treats `null` and `undefined` as "nothing cached for this key", and every other value — including falsy
+ones — as a cacheable value:
+
+| Value returned by your loader | Served from the cache on the next `get` |
+| --- | --- |
+| `0`, `''`, `false` | yes |
+| any string, object or array | yes |
+| `null` | no, your loader is called on every `get` |
+| `undefined` | no, your loader is called on every `get` |
+
+So a loader that legitimately resolves to `0`, `''` or `false` is cached and served like any other value:
+
+```typescript
+class StockCache extends CacheLoader<string, number> {
+
+  constructor() {
+    super('stock-cache', {
+      expirationTime: 60
+    });
+  }
+
+  protected async load(sku: string): Promise<number> {
+    return warehouse.countAvailable(sku); // may legitimately be 0
+  }
+
+}
+
+const cache = new StockCache();
+await cache.get('sku-123'); // 0, counted by the warehouse
+await cache.get('sku-123'); // 0, served from the cache — your loader is not called again
+```
+
+If your loader returns `null` or `undefined` to mean "there is no value for this key", nothing is stored and nothing is
+ever served from the cache for it, so your loader runs on every call. When those lookups are expensive, return a sentinel
+value your own code recognises instead of `null`, so the negative result gets cached too.
+
+Two related behaviours worth knowing:
+
+- `get(undefined)` returns `undefined` straight away, without calling your loader.
+- `set(key, undefined)` and `set(undefined, value)` store nothing and log an error.
+
+### Values that do not survive a JSON round-trip
+
+Objects and arrays are stored as JSON in both LRU and Redis mode, so `Date` values come back as ISO strings, and `Map`,
+`Set` and class instances lose their type. Override `serialize` and `deserialize` (see above) when you need them restored.
+
+`NaN` and `Infinity` are the one case where the two modes differ: LRU mode caches and returns them unchanged, while Redis
+mode stores them as `null` and therefore treats them as absent, calling your loader on every `get`.
 
 ## Usage with dependency injection
 
@@ -406,33 +510,47 @@ _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/
 
 [Full reference](https://abourdin.github.io/cache-flow/modules.html)
 
+Alongside `CacheLoader`, `CacheFlow` and `Cacheable`, the package entry point exports the types you need to annotate your
+own code: `CacheOptions`, `CacheDefinition`, `CacheMetadata`, `Metadata`, `CacheFlowConfiguration`,
+`RedisCacheConfiguration`, `LoggerInterface` and `DefaultLogger`.
+
+```typescript
+import { CacheFlowConfiguration, LoggerInterface, Metadata } from 'cache-flow';
+```
+
 ### CacheLoader<K, V> methods
 
-[Full reference](https://abourdin.github.io/cache-flow/classes/cacheloader.html)
+[Full reference](https://abourdin.github.io/cache-flow/classes/CacheLoader.html)
 
 | Method | Example | Description |
 | --- | --- | --- |
-| `async get(key: K, force: boolean): Promise<V>` | `myCache.get('myKey')` | Gets a value from the cache. If force is set to true, a new value is loaded without checking existence in the cache. |
-| `async getWithMetadata(key: K, force: boolean): Promise<Metadata<V>>` | `myCache.get('myKey')` | Gets a value from the cache with additional metadata (loading time, caching status, ...). If force is set to true, a new value is loaded without checking existence in the cache. |
-| `async set(key: K, value: V): Promise<void>` | `myCache.set('myKey', 'myValue')` | Sets a value from the cache for the given key |
+| `async get(key: K, force?: boolean): Promise<V>` | `myCache.get('myKey')` | Gets a value from the cache, loading it if no value is cached. If force is set to true, a new value is loaded without checking existence in the cache. |
+| `async getWithMetadata(key: K, force?: boolean): Promise<Metadata<V>>` | `myCache.getWithMetadata('myKey')` | Same as `get`, returning `{ value, cached, time }`: whether the value came from the cache, and how many milliseconds the call took. |
+| `async set(key: K, value: V): Promise<void>` | `myCache.set('myKey', 'myValue')` | Sets a value in the cache for the given key |
 | `async delete(key: K): Promise<void>` | `myCache.delete('myKey')` | Evicts a key from the cache |
 | `async exists(key: K): Promise<boolean>` | `myCache.exists('myKey')` | Checks whether a value exists in the cache for the given key |
 | `async reset(): Promise<void>` | `myCache.reset()` | Clears all values from the cache |
-| `getCacheId(): string` | myCache.getCacheId()` | Gets the cache's ID |
+| `getCacheId(): string` | `myCache.getCacheId()` | Gets the cache's ID |
 | `getCacheDefinition(): CacheDefinition` | `myCache.getCacheDefinition()` | Gets the cache definition |
+
+These are the methods you call. The ones you can override in your own `CacheLoader` are `load` (required), and
+`keyToString`, `serialize` and `deserialize` (all optional).
 
 ### CacheFlow methods
 
-[Full reference](https://abourdin.github.io/cache-flow/classes/cacheflow.html)
+[Full reference](https://abourdin.github.io/cache-flow/classes/CacheFlow.html)
 
 | Method | Example | Description |
 | --- | --- | --- |
-| `static configure(configuration: CacheFlowConfiguration)` | `CacheFlow.configure({redis: {port: 1234}})` | Sets the global configuration for Cache Flow and all subsequently instantiated caches |
-| `static get(cacheId: string): Promise<CacheLoader<any, any>>` | `CacheFlow.get('my-cache')` | Gets cache with given cache ID. Cannot access caches created using @Cacheable annotation. |
-| `static async delete(cacheId: string, key: any): Promise<void>` | `CacheFlow.delete('my-cache', 'myKey')` | Deletes entry for given key in cache with given cache ID |
-| `static async reset(cacheId: string): Promise<void>` | `CacheFlow.reset('my-cache')` | Resets cache with given cache ID |
-| `static async resetAll(): Promise<void>` | `CacheFlow.resetAll()` | Clears all caches |
+| `static configure(configuration: CacheFlowConfiguration)` | `CacheFlow.configure({redis: {host: 'localhost', port: 6379}})` | Sets the global configuration for Cache Flow and all subsequently instantiated caches. Call it before instantiating any cache. Throws on an incomplete `redis` configuration. |
+| `static get(cacheId: string): CacheLoader<any, any>` | `CacheFlow.get('my-cache')` | Gets cache with given cache ID. Cannot access caches created using @Cacheable annotation. |
+| `static async delete(cacheId: string, ...key: any[]): Promise<void>` | `CacheFlow.delete('my-cache', 'myKey')` | Deletes entry for given key in cache with given cache ID. For an @Cacheable cache, pass the method arguments in order: `CacheFlow.delete('MyClass#myMethod', 'foo', 123)`. |
+| `static async reset(cacheId: string): Promise<void>` | `CacheFlow.reset('my-cache')` | Resets cache with given cache ID, including @Cacheable caches |
+| `static async resetAll(): Promise<void>` | `CacheFlow.resetAll()` | Clears all caches, including @Cacheable caches |
 | `static getInstances(): CacheLoader<any, any>[]` | `CacheFlow.getInstances()` | Gets all cache instances (except the ones created using @Cacheable annotation) |
+
+Unlike `get` and `getInstances`, `delete` and `reset` do reach `@Cacheable` caches, addressed by their cache ID — which
+defaults to `ClassName#methodName` when you do not set one.
 
 # Project Information
 

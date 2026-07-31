@@ -10,7 +10,9 @@ export class CacheFlow {
   };
 
   public static configure(configuration: CacheFlowConfiguration) {
-    this.configuration = { ...this.configuration, ...configuration };
+    const newConfiguration = { ...this.configuration, ...configuration };
+    this.validateRedisConfiguration(newConfiguration.redis);
+    this.configuration = newConfiguration;
     if (!configuration.logger) {
       this.configuration.logger = new DefaultLogger();
     }
@@ -65,6 +67,23 @@ export class CacheFlow {
     this.instances.set(cacheId, cache);
     if (!(cache as any).isCacheable) {
       this.nonCacheableInstances.set(cacheId, cache);
+    }
+  }
+
+  /**
+   * Checks that a Redis configuration, when given, is complete enough to connect with.
+   *
+   * A partial configuration would otherwise leave all caches in in-memory LRU mode without any error, making a cache
+   * meant to be distributed silently local to each process.
+   *
+   * @param {RedisCacheConfiguration} redis the Redis configuration to validate, if any
+   */
+  private static validateRedisConfiguration(redis: RedisCacheConfiguration): void {
+    if (!redis) {
+      return;
+    }
+    if (!redis.host || !redis.port) {
+      throw new Error(`Invalid Cache Flow Redis configuration: both 'host' and 'port' are required, got host="${redis.host}", port="${redis.port}"`);
     }
   }
 

@@ -35,7 +35,7 @@ export class DefaultLogger implements LoggerInterface {
   }
 
   public error(message: any, ...args: any[]): void {
-    console.error(...message, ...args);
+    console.error(message, ...args);
   }
 
 }
