@@ -17,7 +17,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Release New Version
+          name: Tag Release Version
           command: |
             RELEASE_VERSION=$(node -p -e "require('./package.json').version")
             echo "Releasing version $RELEASE_VERSION"
@@ -39,8 +39,23 @@ jobs:
               git push origin "refs/tags/release-$RELEASE_VERSION"
             fi
 
-            # prepare development branch, unless an earlier attempt already
-            # moved it on. Bumping twice would skip a minor version.
+  prepare-next-iteration:
+    executor: node
+    steps:
+      - checkout
+      - run:
+          name: Prepare Development Branch
+          command: |
+            RELEASE_VERSION=$(node -p -e "require('./package.json').version")
+
+            # setup git
+            git config user.name "Release Script"
+            git config user.email "contact@abourdin.com"
+
+            git fetch origin
+
+            # Bump develop only while its version still matches the one just
+            # released, so re-running over a completed release is a no-op.
             git checkout develop
             DEVELOP_VERSION=$(node -p -e "require('./package.json').version")
             if [ "$DEVELOP_VERSION" = "$RELEASE_VERSION" ]; then
@@ -49,7 +64,6 @@ jobs:
             else
               echo "develop is at $DEVELOP_VERSION, not $RELEASE_VERSION, skipping bump"
             fi
-            git checkout -
 
   prepare-dependencies:
     parameters:
@@ -159,7 +173,20 @@ jobs:
             # Trusted publishing: npm exchanges this OIDC token for short-lived
             # credentials, so no npm token is stored in the project. The aud
             # claim is fixed by npm and is the only claim CircleCI lets us set.
-            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            #
+            # Assigned on its own line rather than as `export VAR=$(...)`, which
+            # reports success whatever the substitution did. That masked a failed
+            # mint on the first two 2.0.0 attempts: npm received no token and
+            # reported ENEEDAUTH, well away from the step that actually broke.
+            echo "node $(node --version), npm $(npm --version)"
+            NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            export NPM_ID_TOKEN
+
+            if [ -z "$NPM_ID_TOKEN" ]; then
+              echo "OIDC token is empty, refusing to attempt an unauthenticated publish" >&2
+              exit 1
+            fi
+
             cd build/package
             npm publish
 
@@ -218,3 +245,9 @@ workflows:
             - build
             - test-22.23.2
             - test-24.18.1
+      # Bumping develop is the last thing a release does. Doing it before the
+      # publish left develop a minor ahead of master every time the publish
+      # failed, which then had to be reverted by hand before retrying.
+      - prepare-next-iteration:
+          requires:
+            - publish
