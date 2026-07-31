@@ -1,0 +1,456 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>cache-flow</title><meta name="description" content="Documentation for cache-flow"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script><script async src="assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="index.html" class="title">cache-flow</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<h1>cache-flow</h1></div>
+<div class="tsd-panel tsd-typography"><h1 id="cache-flow" class="tsd-anchor-link">Cache Flow<a href="#cache-flow" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p><a href="#"><img src="https://img.shields.io/npm/v/cache-flow.svg?style=flat" alt="Version"></a>
+<a href="#"><img src="https://img.shields.io/badge/License-ISC-yellow.svg" alt="License: ISC"></a>
+<a href="https://app.circleci.com/pipelines/github/abourdin/cache-flow?branch=master"><img src="https://circleci.com/gh/abourdin/cache-flow/tree/master.svg?style=shield" alt="master CI Status"></a>
+<a href="https://codecov.io/gh/abourdin/cache-flow/branch/master"><img src="https://codecov.io/github/abourdin/cache-flow/coverage.svg?branch=master" alt="master Coverage Status"></a>
+<a href="#"><img src="https://img.shields.io/github/last-commit/abourdin/cache-flow.svg?style=flat" alt="GitHub last commit"></a>
+<a href="#"><img src="https://img.shields.io/npm/dt/cache-flow.svg?style=flat" alt="NPM Downloads"></a></p>
+<p>Allows to create configurable caches for NodeJS applications with automatic cache loading. Internal caching is supported
+by an in-memory cache or Redis, with automatic fallback in case of Redis disconnection.</p>
+<p><strong>Cache Flow</strong> also provides a <code>@Cacheable</code> decorator for Typescript projects (inspired from Java/Spring), packing all
+the caching features of this library into a single line of code, completely transparently for method callers.</p>
+<h1 id="table-of-contents" class="tsd-anchor-link">Table of Contents<a href="#table-of-contents" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<ul>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#usage-example">Usage Example</a>
+<ul>
+<li><a href="#a-first-simple-cache">A first simple cache</a></li>
+<li><a href="#a-more-advanced-example">A more advanced example</a></li>
+<li><a href="#using-cacheable-typescript-decorator">Using @Cacheable Typescript decorator</a></li>
+<li><a href="#one-cache-per-method-shared-by-all-instances">One cache per method, shared by all instances</a></li>
+<li><a href="#more-examples">More examples</a></li>
+</ul>
+</li>
+<li><a href="#configuration">Configuration</a>
+<ul>
+<li><a href="#configure-redis">Configure Redis</a></li>
+<li><a href="#custom-logger">Custom logger</a></li>
+<li><a href="#detailed-configuration">Detailed configuration</a></li>
+</ul>
+</li>
+<li><a href="#custom-serializationdeserialization">Custom serialization/deserialization</a></li>
+<li><a href="#cached-values-null-and-undefined">Cached values, null and undefined</a>
+<ul>
+<li><a href="#values-that-do-not-survive-a-json-round-trip">Values that do not survive a JSON round-trip</a></li>
+</ul>
+</li>
+<li><a href="#usage-with-dependency-injection">Usage with dependency injection</a></li>
+<li><a href="#cacheflow-reference">Cache Flow Reference</a>
+<ul>
+<li><a href="#cacheloaderk-v-methods">CacheLoader&lt;K, V&gt; methods</a></li>
+<li><a href="#cacheflow-methods">CacheFlow methods</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="installation" class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>Requirements:</strong> Node.js 22 or later. The library is tested against Node.js 22 (Jod) and 24 (Krypton),
+the currently supported LTS release lines.</p>
+<ol>
+<li>Install the library</li>
+</ol>
+<pre><code class="sh"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-3">--save</span><span class="hl-1"> </span><span class="hl-2">cache-flow</span>
+</code><button type="button">Copy</button></pre>
+
+<ol start="2">
+<li><code>reflect-metadata</code> shim is required:</li>
+</ol>
+<p><code>npm install --save reflect-metadata</code></p>
+<p>Make sure to import it before you use <code>cache-flow</code> (best is to import it at the top of your index file):</p>
+<pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> </span><span class="hl-2">&#39;reflect-metadata&#39;</span><span class="hl-1">;</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="usage-example" class="tsd-anchor-link">Usage Example<a href="#usage-example" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="a-first-simple-cache" class="tsd-anchor-link">A first simple cache<a href="#a-first-simple-cache" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li><strong>Create a cache <code>SimpleCache.ts</code></strong></li>
+</ol>
+<p>1.a. <strong>Typescript example:</strong></p>
+<pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">CacheLoader</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cache-flow&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">SimpleCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1">&lt;</span><span class="hl-6">string</span><span class="hl-1">, </span><span class="hl-6">string</span><span class="hl-1">&gt; {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-3">super</span><span class="hl-1">(</span><span class="hl-2">&#39;simple-cache-1&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">3600</span><span class="hl-1"> </span><span class="hl-8">// 1h in seconds</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">load</span><span class="hl-1">(</span><span class="hl-5">key</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">string</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">now</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">Date</span><span class="hl-1">();</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">key</span><span class="hl-1"> + </span><span class="hl-2">&#39;-&#39;</span><span class="hl-1"> + </span><span class="hl-5">now</span><span class="hl-1">.</span><span class="hl-0">getTime</span><span class="hl-1">();</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/SimpleCache.ts">code example</a></em></p>
+<p>1.b. <strong>ES6 Javascript example:</strong></p>
+<p>Even though it does not provide all the genericity <strong>Cache Flow</strong> comes with when used in a Typescript environment,
+native javascript is also completely supported:</p>
+<pre><code class="javascript"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">CacheLoader</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cache-flow&#39;</span><span class="hl-1">;</span><br/><span class="hl-8">// also works with</span><br/><span class="hl-8">// const { CacheLoader } = require(&#39;cache-flow&#39;);</span><br/><br/><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">ES6ExampleCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1"> {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-3">super</span><span class="hl-1">(</span><span class="hl-2">&#39;es6-example-cache&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">3600</span><span class="hl-1"> </span><span class="hl-8">// 1h in seconds</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  }</span><br/><br/><br/><span class="hl-1">  </span><span class="hl-0">load</span><span class="hl-1">(</span><span class="hl-5">key</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">now</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">Date</span><span class="hl-1">();</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">key</span><span class="hl-1"> + </span><span class="hl-2">&#39;-&#39;</span><span class="hl-1"> + </span><span class="hl-5">now</span><span class="hl-1">.</span><span class="hl-0">getTime</span><span class="hl-1">();</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/ES6ExampleCache.js">code example</a></em></p>
+<ol start="2">
+<li><strong>Use your cache</strong></li>
+</ol>
+<pre><code class="typescript"><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">cache</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">SimpleCache</span><span class="hl-1">();</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">myValue</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-0">get</span><span class="hl-1">(</span><span class="hl-2">&#39;myKey&#39;</span><span class="hl-1">);</span><br/><span class="hl-0">setTimeout</span><span class="hl-1">(</span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-3">function</span><span class="hl-1"> () {</span><br/><span class="hl-1">  </span><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">myValue2</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-0">get</span><span class="hl-1">(</span><span class="hl-2">&#39;myKey&#39;</span><span class="hl-1">);</span><br/><span class="hl-1">  </span><span class="hl-5">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-5">myValue</span><span class="hl-1">);</span><br/><span class="hl-1">  </span><span class="hl-5">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-5">myValue2</span><span class="hl-1">); </span><span class="hl-8">// myValue2 has the same value as myValue!</span><br/><span class="hl-1">}, </span><span class="hl-7">3000</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
+
+<ol start="3">
+<li><strong>What happened behind the scenes</strong></li>
+</ol>
+<p>Unlike lots of cache libraries, with <strong>Cache Flow</strong>, you don't need to manually check if a key exists in your cache
+before trying to get it, and set the value yourself afterwards.</p>
+<p>When you call the <code>get</code> function of your cache, <strong>Cache Flow</strong> automatically takes care of calling the load function
+your previously defined, and stores the value for a later call.</p>
+<p>So if you call <code>get</code> right after, giving the same key, it will bypass the loader function, and directly pull the value
+from the inner cache.</p>
+<h3 id="a-more-advanced-example" class="tsd-anchor-link">A more advanced example<a href="#a-more-advanced-example" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="typescript"><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">UserProfileCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1">&lt;</span><span class="hl-6">User</span><span class="hl-1">, </span><span class="hl-6">UserProfile</span><span class="hl-1">&gt; {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-3">super</span><span class="hl-1">(</span><span class="hl-2">&#39;user-profile-cache&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">3600</span><span class="hl-1"> </span><span class="hl-8">// 1h in seconds</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">load</span><span class="hl-1">(</span><span class="hl-5">user</span><span class="hl-1">: </span><span class="hl-6">User</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">UserProfile</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">profile</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">userProfileService</span><span class="hl-1">.</span><span class="hl-0">getProfile</span><span class="hl-1">(</span><span class="hl-5">user</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">profile</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-0">keyToString</span><span class="hl-1">(</span><span class="hl-5">user</span><span class="hl-1">: </span><span class="hl-6">User</span><span class="hl-1">): </span><span class="hl-6">string</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">user</span><span class="hl-1">.</span><span class="hl-5">id</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/ObjectStringCache.ts">code example</a></em></p>
+<p><strong>Cache Flow</strong> allows you to define caches with more complex keys and values, which can be objects, arrays, ...</p>
+<p>This way, you can define your own cache key structures:</p>
+<pre><code class="typescript"><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">CustomCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1">&lt;</span><span class="hl-6">MyCacheKey</span><span class="hl-1">, </span><span class="hl-6">CachedObject</span><span class="hl-1">&gt; {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-3">super</span><span class="hl-1">(</span><span class="hl-2">&#39;custom-cache-key&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">3600</span><span class="hl-1"> </span><span class="hl-8">// 1h in seconds</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">load</span><span class="hl-1">(</span><span class="hl-5">key</span><span class="hl-1">: </span><span class="hl-6">MyCacheKey</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">CachedObject</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">result</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-0">doSomething</span><span class="hl-1">(</span><span class="hl-5">key</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">result</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span><br/><br/><span class="hl-3">interface</span><span class="hl-1"> </span><span class="hl-6">MyCacheKey</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-5">id</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">someField</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">someOtherField</span><span class="hl-1">: </span><span class="hl-6">number</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p>A cache defined with such a key will compute a hash of your key objects to use as the internal cache key. You can also
+define a custom <code>keyToString</code> function, transforming your key into a unique string identifying your key. It can be as
+simple as an ID, or a combination of several parameters that define your key, like:</p>
+<pre><code class="typescript"><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">CustomCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1">&lt;</span><span class="hl-6">Identifier</span><span class="hl-1">, </span><span class="hl-6">string</span><span class="hl-1">&gt; {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-0">keyToString</span><span class="hl-1">(</span><span class="hl-5">identifier</span><span class="hl-1">: </span><span class="hl-6">Identifier</span><span class="hl-1">): </span><span class="hl-6">string</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-2">`</span><span class="hl-3">${</span><span class="hl-5">identifier</span><span class="hl-10">.</span><span class="hl-5">code</span><span class="hl-3">}</span><span class="hl-2">-</span><span class="hl-3">${</span><span class="hl-5">identifier</span><span class="hl-10">.</span><span class="hl-5">language</span><span class="hl-3">}</span><span class="hl-2">`</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="using-cacheable-typescript-decorator" class="tsd-anchor-link">Using @Cacheable Typescript decorator<a href="#using-cacheable-typescript-decorator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>When using Typescript, you have access to a powerful shortcut to caching: you can annotate your class method
+with <code>@Cacheable</code>. This automatically wraps your method call with a caching layer, meaning when calling your method,
+<strong>Cache Flow</strong> will take care of checking for an existing cached value, and otherwise will execute the method to get
+one. With this, adding a cache is completely transparent for anyone calling this method, without any other required
+change than annotating your method with the <code>@Cacheable</code> decorator.</p>
+<p>Here is an example:</p>
+<pre><code class="typescript"><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">CacheableExampleClass</span><span class="hl-1"> {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">private</span><span class="hl-1"> </span><span class="hl-3">readonly</span><span class="hl-1"> </span><span class="hl-5">id</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">(</span><span class="hl-5">id</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-3">this</span><span class="hl-1">.</span><span class="hl-5">id</span><span class="hl-1"> = </span><span class="hl-5">id</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  @</span><span class="hl-0">Cacheable</span><span class="hl-1">()</span><br/><span class="hl-1">  </span><span class="hl-3">public</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">getResult</span><span class="hl-1">(</span><span class="hl-5">prefix</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">, </span><span class="hl-5">value</span><span class="hl-1">: </span><span class="hl-6">number</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">string</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-0">sleep</span><span class="hl-1">(</span><span class="hl-7">100</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">now</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">Date</span><span class="hl-1">();</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-2">`</span><span class="hl-3">${</span><span class="hl-3">this</span><span class="hl-10">.</span><span class="hl-5">id</span><span class="hl-3">}</span><span class="hl-2">-</span><span class="hl-3">${</span><span class="hl-5">prefix</span><span class="hl-3">}</span><span class="hl-2">-</span><span class="hl-3">${</span><span class="hl-5">now</span><span class="hl-10">.</span><span class="hl-0">getTime</span><span class="hl-10">()</span><span class="hl-3">}${</span><span class="hl-5">now</span><span class="hl-10">.</span><span class="hl-0">getMilliseconds</span><span class="hl-10">()</span><span class="hl-3">}</span><span class="hl-2">-</span><span class="hl-3">${</span><span class="hl-5">value</span><span class="hl-10"> </span><span class="hl-1">*</span><span class="hl-10"> </span><span class="hl-7">3</span><span class="hl-3">}</span><span class="hl-2">`</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/CacheableExampleClass.ts">code example</a></em></p>
+<p><code>@Cacheable</code> provides the same flexibility as manually declaring a class cache: you can configure the <code>cacheId</code>,
+<code>expirationTime</code> and <code>maxSize</code> parameters, as well as the <code>argsToKey</code>, <code>serialize</code> and <code>deserialize</code> functions (see
+documentation below).</p>
+<p>By default, <code>@Cacheable</code> will use <a href="https://www.npmjs.com/package/object-hash">object-hash</a> on the array of arguments to
+create a cache key. In cases where you have more complex objects as your cache key, and only want to use a subset of
+these objects, you can define a custom way of inferring the cache key from arguments:</p>
+<pre><code class="typescript"><span class="hl-1">@</span><span class="hl-0">Cacheable</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-0">argsToKey</span><span class="hl-5">:</span><span class="hl-1"> (</span><span class="hl-5">user</span><span class="hl-1">: </span><span class="hl-6">User</span><span class="hl-1">) </span><span class="hl-3">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-2">`</span><span class="hl-3">${</span><span class="hl-5">user</span><span class="hl-10">.</span><span class="hl-5">id</span><span class="hl-3">}</span><span class="hl-2">-</span><span class="hl-3">${</span><span class="hl-5">user</span><span class="hl-10">.</span><span class="hl-5">lastUpdate</span><span class="hl-3">}</span><span class="hl-2">`</span><span class="hl-1">;</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-5">options:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">3600</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">})</span>
+</code><button type="button">Copy</button></pre>
+
+<p>If <code>argsToKey</code> returns a string, this string is directly used as the cache key. Otherwise, the cache computes a hash of
+the returned value and uses it as the cache key. Make sure your <code>argsToKey</code> function actually returns a value: one that
+returns nothing maps every call to the same cache key.</p>
+<h3 id="one-cache-per-method-shared-by-all-instances" class="tsd-anchor-link">One cache per method, shared by all instances<a href="#one-cache-per-method-shared-by-all-instances" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>The cache backing a <code>@Cacheable</code> method is created once per decorated method, when the class is defined, and the cache
+key is derived from the method arguments only. All instances of the class therefore <strong>share the same cache entries</strong>, and
+two instances called with equal arguments get the same cached value even if their internal state differs:</p>
+<pre><code class="typescript"><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">Greeter</span><span class="hl-1"> {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">(</span><span class="hl-3">private</span><span class="hl-1"> </span><span class="hl-3">readonly</span><span class="hl-1"> </span><span class="hl-5">name</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">) {</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  @</span><span class="hl-0">Cacheable</span><span class="hl-1">()</span><br/><span class="hl-1">  </span><span class="hl-3">public</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">greet</span><span class="hl-1">(</span><span class="hl-5">greeting</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">string</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-2">`</span><span class="hl-3">${</span><span class="hl-5">greeting</span><span class="hl-3">}</span><span class="hl-2">, </span><span class="hl-3">${</span><span class="hl-3">this</span><span class="hl-10">.</span><span class="hl-5">name</span><span class="hl-3">}</span><span class="hl-2">`</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span><br/><br/><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">Greeter</span><span class="hl-1">(</span><span class="hl-2">&#39;Alice&#39;</span><span class="hl-1">).</span><span class="hl-0">greet</span><span class="hl-1">(</span><span class="hl-2">&#39;Hello&#39;</span><span class="hl-1">); </span><span class="hl-8">// &#39;Hello, Alice&#39;, loaded</span><br/><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">Greeter</span><span class="hl-1">(</span><span class="hl-2">&#39;Bob&#39;</span><span class="hl-1">).</span><span class="hl-0">greet</span><span class="hl-1">(</span><span class="hl-2">&#39;Hello&#39;</span><span class="hl-1">);   </span><span class="hl-8">// &#39;Hello, Alice&#39; — same key, served from the cache</span>
+</code><button type="button">Copy</button></pre>
+
+<p>If a method's result depends on instance state, include that state in the cache key with <code>argsToKey</code>, or use a
+<code>CacheLoader</code> whose key covers it.</p>
+<p>By default, <code>@Cacheable</code> uses an <code>expirationTime</code> of 3600 seconds (1 hour), which differs from the <code>CacheLoader</code> default
+of 24 hours. Set <code>options.expirationTime</code> explicitly if you rely on a particular value.</p>
+<h3 id="more-examples" class="tsd-anchor-link">More examples<a href="#more-examples" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>You can find more examples in the <code>examples</code> folder of the source repository:
+<a href="https://github.com/abourdin/cache-flow/tree/master/examples">https://github.com/abourdin/cache-flow/tree/master/examples</a></p>
+<h2 id="configuration" class="tsd-anchor-link">Configuration<a href="#configuration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="configure-redis" class="tsd-anchor-link">Configure Redis<a href="#configure-redis" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><strong>Cache Flow</strong> also supports distributed caching by using Redis as the caching engine. To have your cache instances use
+Redis behind the scenes, <strong>Cache Flow</strong> must be configured as part of the startup of your application, before any cache
+is instantiated.</p>
+<pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">CacheFlow</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cache-flow&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">CacheFlow</span><span class="hl-1">.</span><span class="hl-0">configure</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-5">redis:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">host:</span><span class="hl-1"> </span><span class="hl-2">&#39;your.redis.server.com&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-5">port:</span><span class="hl-1"> </span><span class="hl-7">6379</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-8">// all set, now you can start caching!</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">cache</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">SimpleCache</span><span class="hl-1">();</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Both <code>host</code> and <code>port</code> are required. <code>configure</code> throws if a <code>redis</code> configuration is given with only one of them, rather
+than leaving your caches silently local to each process:</p>
+<pre><code class="typescript"><span class="hl-5">CacheFlow</span><span class="hl-1">.</span><span class="hl-0">configure</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-5">redis:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">host:</span><span class="hl-1"> </span><span class="hl-2">&#39;your.redis.server.com&#39;</span><br/><span class="hl-1">    </span><span class="hl-8">// no port: throws Error: Invalid Cache Flow Redis configuration: both &#39;host&#39; and &#39;port&#39; are required</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Omitting the <code>redis</code> block entirely is still perfectly valid, and keeps all caches in in-memory LRU mode.</p>
+<p>But what if your Redis server has to restart or goes down? Don't worry, <strong>Cache Flow</strong> has got you covered!</p>
+<p>In case your Redis server temporarily goes down, all your caches will automatically fallback to an in-memory LRU cache,
+until your Redis server is back online. As soon as your caches can reconnect, they'll switch back to using Redis. This
+way, your caching layer keeps serving requests throughout.</p>
+<p>Note that each switch between Redis and LRU starts from an empty cache, so the first <code>get</code> for any given key after a
+switch calls your loader again. Availability is preserved; cached entries are not carried across.</p>
+<h3 id="custom-logger" class="tsd-anchor-link">Custom Logger<a href="#custom-logger" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><strong>Cache Flow</strong> comes with a default logger which can log various information about what happens with your caches (when
+values are get, loaded, some errors, ...)</p>
+<p>By default, <strong>Cache Flow</strong> will only log errors to <code>console.error</code>, but you can provide your own logger in the initial
+configuration of the library, like <a href="https://www.npmjs.com/package/log4js">log4js</a>
+, <a href="https://www.npmjs.com/package/winston">winston</a>, ...</p>
+<p>See the example below with <a href="https://www.npmjs.com/package/log4js">log4js</a>:</p>
+<pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">CacheFlow</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cache-flow&#39;</span><span class="hl-1">;</span><br/><span class="hl-4">import</span><span class="hl-1"> </span><span class="hl-3">*</span><span class="hl-1"> </span><span class="hl-4">as</span><span class="hl-1"> </span><span class="hl-5">log4js</span><span class="hl-1"> </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;log4js&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">CacheFlow</span><span class="hl-1">.</span><span class="hl-0">configure</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-5">logger:</span><span class="hl-1"> </span><span class="hl-5">log4js</span><span class="hl-1">.</span><span class="hl-0">getLogger</span><span class="hl-1">()</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>You can also simply pass the <code>console</code> to get all logs output to the stdout, including <code>debug</code> logs, like so:</p>
+<pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">CacheFlow</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cache-flow&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">CacheFlow</span><span class="hl-1">.</span><span class="hl-0">configure</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-5">logger:</span><span class="hl-1"> </span><span class="hl-5">console</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="detailed-configuration" class="tsd-anchor-link">Detailed configuration<a href="#detailed-configuration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li><code>CacheLoader</code> constructor parameters:</li>
+</ol>
+<ul>
+<li><code>cacheId</code>: a unique string identifying each cache. If shared between 2 caches or more, their keys might conflict, and
+cause deserialization errors when trying to get a key stored by another cache.</li>
+<li><code>options</code>:
+<ul>
+<li><code>expirationTime</code>: the time in seconds during which cache entries will be retained before being evicted (default:
+86400, i.e. 24 hours). Note that <code>@Cacheable</code> defaults to 3600 (1 hour) instead.</li>
+<li><code>maxSize</code>: the maximum number of entries stored in the cache when running in LRU mode (default: 1000). Once maximum
+is reached and a new entry is added to the cache, it replaces the least recently used. This option has no effect in
+Redis mode, where entry count is bounded by your Redis server configuration.</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li><code>CacheFlow.configure(configuration)</code> configuration object parameter:</li>
+</ol>
+<ul>
+<li><code>redis</code>: optional. When given, both <code>host</code> and <code>port</code> are required, and <code>configure</code> throws otherwise.
+<ul>
+<li><code>host</code>: the Redis server hostname</li>
+<li><code>port</code>: the Redis server port</li>
+<li><code>db</code>: the Redis database index to use (default: 0)</li>
+</ul>
+</li>
+<li><code>logger</code>: a logger instance matching <code>LoggerInterface</code>. When <code>configure</code> is called without a <code>logger</code>, the logger is
+reset to the default one, which only writes errors to <code>console.error</code>.</li>
+</ul>
+<h2 id="custom-serializationdeserialization" class="tsd-anchor-link">Custom serialization/deserialization<a href="#custom-serializationdeserialization" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>When extending <code>CacheLoader</code>, your cache will come with default serialization and deserialization implementations for
+the
+<code>serialize</code> and <code>deserialize</code> methods, which take care of storing objects and arrays as JSON in the inner cache, and
+transform them back when getting values out of the cache.</p>
+<p>In the case where you need to implement your own serialization and deserialization, for example to cache specific
+framework classes or entities, your <code>CacheLoader</code> implementation can override <code>serialize</code> and <code>deserialize</code> methods:</p>
+<pre><code class="typescript"><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">MyEntityCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1">&lt;</span><span class="hl-6">string</span><span class="hl-1">, </span><span class="hl-6">MyEntity</span><span class="hl-1">&gt; {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-3">super</span><span class="hl-1">(</span><span class="hl-2">&#39;my-entity-cache&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">3600</span><span class="hl-1"> </span><span class="hl-8">// 1h in seconds</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">load</span><span class="hl-1">(</span><span class="hl-5">id</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">MyEntity</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">entity</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">repository</span><span class="hl-1">.</span><span class="hl-0">findById</span><span class="hl-1">(</span><span class="hl-5">id</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">entity</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-0">serialize</span><span class="hl-1">(</span><span class="hl-5">entity</span><span class="hl-1">: </span><span class="hl-6">MyEntity</span><span class="hl-1">): </span><span class="hl-6">any</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">entity</span><span class="hl-1">.</span><span class="hl-0">toJSON</span><span class="hl-1">();</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-0">deserialize</span><span class="hl-1">(</span><span class="hl-5">serialized</span><span class="hl-1">: </span><span class="hl-6">any</span><span class="hl-1">): </span><span class="hl-6">MyEntity</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">MyEntity</span><span class="hl-1">.</span><span class="hl-0">fromJSON</span><span class="hl-1">(</span><span class="hl-5">serialized</span><span class="hl-1">);</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="cached-values-null-and-undefined" class="tsd-anchor-link">Cached values, null and undefined<a href="#cached-values-null-and-undefined" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>Cache Flow</strong> treats <code>null</code> and <code>undefined</code> as &quot;nothing cached for this key&quot;, and every other value — including falsy
+ones — as a cacheable value:</p>
+<table>
+<thead>
+<tr>
+<th>Value returned by your loader</th>
+<th>Served from the cache on the next <code>get</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code>, <code>''</code>, <code>false</code></td>
+<td>yes</td>
+</tr>
+<tr>
+<td>any string, object or array</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>null</code></td>
+<td>no, your loader is called on every <code>get</code></td>
+</tr>
+<tr>
+<td><code>undefined</code></td>
+<td>no, your loader is called on every <code>get</code></td>
+</tr>
+</tbody>
+</table>
+<p>So a loader that legitimately resolves to <code>0</code>, <code>''</code> or <code>false</code> is cached and served like any other value:</p>
+<pre><code class="typescript"><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">StockCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1">&lt;</span><span class="hl-6">string</span><span class="hl-1">, </span><span class="hl-6">number</span><span class="hl-1">&gt; {</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-3">super</span><span class="hl-1">(</span><span class="hl-2">&#39;stock-cache&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">60</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">load</span><span class="hl-1">(</span><span class="hl-5">sku</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">number</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-5">warehouse</span><span class="hl-1">.</span><span class="hl-0">countAvailable</span><span class="hl-1">(</span><span class="hl-5">sku</span><span class="hl-1">); </span><span class="hl-8">// may legitimately be 0</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span><br/><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-9">cache</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-0">StockCache</span><span class="hl-1">();</span><br/><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-0">get</span><span class="hl-1">(</span><span class="hl-2">&#39;sku-123&#39;</span><span class="hl-1">); </span><span class="hl-8">// 0, counted by the warehouse</span><br/><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-0">get</span><span class="hl-1">(</span><span class="hl-2">&#39;sku-123&#39;</span><span class="hl-1">); </span><span class="hl-8">// 0, served from the cache — your loader is not called again</span>
+</code><button type="button">Copy</button></pre>
+
+<p>If your loader returns <code>null</code> or <code>undefined</code> to mean &quot;there is no value for this key&quot;, nothing is stored and nothing is
+ever served from the cache for it, so your loader runs on every call. When those lookups are expensive, return a sentinel
+value your own code recognises instead of <code>null</code>, so the negative result gets cached too.</p>
+<p>Two related behaviours worth knowing:</p>
+<ul>
+<li><code>get(undefined)</code> returns <code>undefined</code> straight away, without calling your loader.</li>
+<li><code>set(key, undefined)</code> and <code>set(undefined, value)</code> store nothing and log an error.</li>
+</ul>
+<h3 id="values-that-do-not-survive-a-json-round-trip" class="tsd-anchor-link">Values that do not survive a JSON round-trip<a href="#values-that-do-not-survive-a-json-round-trip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Objects and arrays are stored as JSON in both LRU and Redis mode, so <code>Date</code> values come back as ISO strings, and <code>Map</code>,
+<code>Set</code> and class instances lose their type. Override <code>serialize</code> and <code>deserialize</code> (see above) when you need them restored.</p>
+<p><code>NaN</code> and <code>Infinity</code> are the one case where the two modes differ: LRU mode caches and returns them unchanged, while Redis
+mode stores them as <code>null</code> and therefore treats them as absent, calling your loader on every <code>get</code>.</p>
+<h2 id="usage-with-dependency-injection" class="tsd-anchor-link">Usage with dependency injection<a href="#usage-with-dependency-injection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>Cache Flow</strong> is compatible with your favorite Typescript DI framework,
+like <a href="https://www.npmjs.com/package/typedi">typedi</a>,
+<a href="https://www.npmjs.com/package/tsyringe">tsyringe</a>, <a href="https://www.npmjs.com/package/inversify">InversifyJS</a>...</p>
+<p>For example, with typedi:</p>
+<pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">CacheLoader</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cache-flow&#39;</span><span class="hl-1">;</span><br/><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">Inject</span><span class="hl-1">, </span><span class="hl-5">Service</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;typedi&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-1">@</span><span class="hl-0">Service</span><span class="hl-1">()</span><br/><span class="hl-3">class</span><span class="hl-1"> </span><span class="hl-6">UserCache</span><span class="hl-1"> </span><span class="hl-3">extends</span><span class="hl-1"> </span><span class="hl-6">CacheLoader</span><span class="hl-1">&lt;</span><span class="hl-6">string</span><span class="hl-1">, </span><span class="hl-6">User</span><span class="hl-1">&gt; {</span><br/><br/><span class="hl-1">  @</span><span class="hl-0">Inject</span><span class="hl-1">()</span><br/><span class="hl-1">  </span><span class="hl-3">private</span><span class="hl-1"> </span><span class="hl-5">userService</span><span class="hl-1">: </span><span class="hl-6">UserService</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-3">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-3">super</span><span class="hl-1">(</span><span class="hl-2">&#39;user-cache&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-5">expirationTime:</span><span class="hl-1"> </span><span class="hl-7">3600</span><span class="hl-1"> </span><span class="hl-8">// 1h in seconds</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">protected</span><span class="hl-1"> </span><span class="hl-3">async</span><span class="hl-1"> </span><span class="hl-0">load</span><span class="hl-1">(</span><span class="hl-5">userId</span><span class="hl-1">: </span><span class="hl-6">string</span><span class="hl-1">): </span><span class="hl-6">Promise</span><span class="hl-1">&lt;</span><span class="hl-6">User</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">    </span><span class="hl-4">return</span><span class="hl-1"> </span><span class="hl-3">this</span><span class="hl-1">.</span><span class="hl-5">userService</span><span class="hl-1">.</span><span class="hl-0">getUserById</span><span class="hl-1">(</span><span class="hl-5">userId</span><span class="hl-1">);</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p><em>Also see the <a href="https://github.com/abourdin/cache-flow/blob/master/examples/DIExampleCache.ts">code example</a></em></p>
+<h2 id="cacheflow-reference" class="tsd-anchor-link">CacheFlow Reference<a href="#cacheflow-reference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><a href="https://abourdin.github.io/cache-flow/modules.html">Full reference</a></p>
+<p>Alongside <code>CacheLoader</code>, <code>CacheFlow</code> and <code>Cacheable</code>, the package entry point exports the types you need to annotate your
+own code: <code>CacheOptions</code>, <code>CacheDefinition</code>, <code>CacheMetadata</code>, <code>Metadata</code>, <code>CacheFlowConfiguration</code>,
+<code>RedisCacheConfiguration</code>, <code>LoggerInterface</code> and <code>DefaultLogger</code>.</p>
+<pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-5">CacheFlowConfiguration</span><span class="hl-1">, </span><span class="hl-5">LoggerInterface</span><span class="hl-1">, </span><span class="hl-5">Metadata</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cache-flow&#39;</span><span class="hl-1">;</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="cacheloaderk-v-methods" class="tsd-anchor-link">CacheLoader&lt;K, V&gt; methods<a href="#cacheloaderk-v-methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><a href="https://abourdin.github.io/cache-flow/classes/CacheLoader.html">Full reference</a></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>async get(key: K, force?: boolean): Promise&lt;V&gt;</code></td>
+<td><code>myCache.get('myKey')</code></td>
+<td>Gets a value from the cache, loading it if no value is cached. If force is set to true, a new value is loaded without checking existence in the cache.</td>
+</tr>
+<tr>
+<td><code>async getWithMetadata(key: K, force?: boolean): Promise&lt;Metadata&lt;V&gt;&gt;</code></td>
+<td><code>myCache.getWithMetadata('myKey')</code></td>
+<td>Same as <code>get</code>, returning <code>{ value, cached, time }</code>: whether the value came from the cache, and how many milliseconds the call took.</td>
+</tr>
+<tr>
+<td><code>async set(key: K, value: V): Promise&lt;void&gt;</code></td>
+<td><code>myCache.set('myKey', 'myValue')</code></td>
+<td>Sets a value in the cache for the given key</td>
+</tr>
+<tr>
+<td><code>async delete(key: K): Promise&lt;void&gt;</code></td>
+<td><code>myCache.delete('myKey')</code></td>
+<td>Evicts a key from the cache</td>
+</tr>
+<tr>
+<td><code>async exists(key: K): Promise&lt;boolean&gt;</code></td>
+<td><code>myCache.exists('myKey')</code></td>
+<td>Checks whether a value exists in the cache for the given key</td>
+</tr>
+<tr>
+<td><code>async reset(): Promise&lt;void&gt;</code></td>
+<td><code>myCache.reset()</code></td>
+<td>Clears all values from the cache</td>
+</tr>
+<tr>
+<td><code>getCacheId(): string</code></td>
+<td><code>myCache.getCacheId()</code></td>
+<td>Gets the cache's ID</td>
+</tr>
+<tr>
+<td><code>getCacheDefinition(): CacheDefinition</code></td>
+<td><code>myCache.getCacheDefinition()</code></td>
+<td>Gets the cache definition</td>
+</tr>
+</tbody>
+</table>
+<p>These are the methods you call. The ones you can override in your own <code>CacheLoader</code> are <code>load</code> (required), and
+<code>keyToString</code>, <code>serialize</code> and <code>deserialize</code> (all optional).</p>
+<h3 id="cacheflow-methods" class="tsd-anchor-link">CacheFlow methods<a href="#cacheflow-methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><a href="https://abourdin.github.io/cache-flow/classes/CacheFlow.html">Full reference</a></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>static configure(configuration: CacheFlowConfiguration)</code></td>
+<td><code>CacheFlow.configure({redis: {host: 'localhost', port: 6379}})</code></td>
+<td>Sets the global configuration for Cache Flow and all subsequently instantiated caches. Call it before instantiating any cache. Throws on an incomplete <code>redis</code> configuration.</td>
+</tr>
+<tr>
+<td><code>static get(cacheId: string): CacheLoader&lt;any, any&gt;</code></td>
+<td><code>CacheFlow.get('my-cache')</code></td>
+<td>Gets cache with given cache ID. Cannot access caches created using @Cacheable annotation.</td>
+</tr>
+<tr>
+<td><code>static async delete(cacheId: string, ...key: any[]): Promise&lt;void&gt;</code></td>
+<td><code>CacheFlow.delete('my-cache', 'myKey')</code></td>
+<td>Deletes entry for given key in cache with given cache ID. For an @Cacheable cache, pass the method arguments in order: <code>CacheFlow.delete('MyClass#myMethod', 'foo', 123)</code>.</td>
+</tr>
+<tr>
+<td><code>static async reset(cacheId: string): Promise&lt;void&gt;</code></td>
+<td><code>CacheFlow.reset('my-cache')</code></td>
+<td>Resets cache with given cache ID, including @Cacheable caches</td>
+</tr>
+<tr>
+<td><code>static async resetAll(): Promise&lt;void&gt;</code></td>
+<td><code>CacheFlow.resetAll()</code></td>
+<td>Clears all caches, including @Cacheable caches</td>
+</tr>
+<tr>
+<td><code>static getInstances(): CacheLoader&lt;any, any&gt;[]</code></td>
+<td><code>CacheFlow.getInstances()</code></td>
+<td>Gets all cache instances (except the ones created using @Cacheable annotation)</td>
+</tr>
+</tbody>
+</table>
+<p>Unlike <code>get</code> and <code>getInstances</code>, <code>delete</code> and <code>reset</code> do reach <code>@Cacheable</code> caches, addressed by their cache ID — which
+defaults to <code>ClassName#methodName</code> when you do not set one.</p>
+<h1 id="project-information" class="tsd-anchor-link">Project Information<a href="#project-information" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<h2 id="author" class="tsd-anchor-link">Author<a href="#author" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>👤 <strong>Alexandre Bourdin <a href="mailto:contact@abourdin.com">contact@abourdin.com</a></strong></p>
+<ul>
+<li>Github: <a href="https://github.com/abourdin">@abourdin</a></li>
+<li>Website: <a href="https://www.abourdin.com">https://www.abourdin.com</a></li>
+<li>LinkedIn: <a href="https://linkedin.com/in/alexandre-bourdin-38090844">@alexandre-bourdin-38090844</a></li>
+</ul>
+<h2 id="show-your-support" class="tsd-anchor-link">Show your support<a href="#show-your-support" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Give a ⭐️ if this project helped you!</p>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#cache-flow"><span>Cache <wbr/>Flow</span></a><a href="#table-of-contents"><span>Table of <wbr/>Contents</span></a>
+<ul>
+<li><a href="#installation"><span>Installation</span></a></li>
+<li><a href="#usage-example"><span>Usage <wbr/>Example</span></a></li>
+<li>
+<ul>
+<li><a href="#a-first-simple-cache"><span>A first simple cache</span></a></li>
+<li><a href="#a-more-advanced-example"><span>A more advanced example</span></a></li>
+<li><a href="#using-cacheable-typescript-decorator"><span>Using @<wbr/>Cacheable <wbr/>Typescript decorator</span></a></li>
+<li><a href="#one-cache-per-method-shared-by-all-instances"><span>One cache per method, shared by all instances</span></a></li>
+<li><a href="#more-examples"><span>More examples</span></a></li></ul></li>
+<li><a href="#configuration"><span>Configuration</span></a></li>
+<li>
+<ul>
+<li><a href="#configure-redis"><span>Configure <wbr/>Redis</span></a></li>
+<li><a href="#custom-logger"><span>Custom <wbr/>Logger</span></a></li>
+<li><a href="#detailed-configuration"><span>Detailed configuration</span></a></li></ul></li>
+<li><a href="#custom-serializationdeserialization"><span>Custom serialization/deserialization</span></a></li>
+<li><a href="#cached-values-null-and-undefined"><span>Cached values, null and undefined</span></a></li>
+<li>
+<ul>
+<li><a href="#values-that-do-not-survive-a-json-round-trip"><span>Values that do not survive a <wbr/>JSON round-<wbr/>trip</span></a></li></ul></li>
+<li><a href="#usage-with-dependency-injection"><span>Usage with dependency injection</span></a></li>
+<li><a href="#cacheflow-reference"><span>Cache<wbr/>Flow <wbr/>Reference</span></a></li>
+<li>
+<ul>
+<li><a href="#cacheloaderk-v-methods"><span>Cache<wbr/>Loader&lt;<wbr/>K, <wbr/>V&gt; methods</span></a></li>
+<li><a href="#cacheflow-methods"><span>Cache<wbr/>Flow methods</span></a></li></ul></li></ul><a href="#project-information"><span>Project <wbr/>Information</span></a>
+<ul>
+<li><a href="#author"><span>Author</span></a></li>
+<li><a href="#show-your-support"><span>Show your support</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="modules.html">cache-flow</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>
