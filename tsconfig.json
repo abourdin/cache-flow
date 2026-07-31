@@ -9,6 +9,10 @@
     "rootDir": ".",
     "outDir": "build/compiled",
     "noImplicitAny": true,
+    "types": [
+      "vitest/globals",
+      "node"
+    ],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "experimentalDecorators": true,
