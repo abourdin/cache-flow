@@ -91,7 +91,7 @@ export abstract class BaseCacheLoader<K, V> {
         throw new Error(`Failed to get value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
       }
     }
-    if (!value) {
+    if (value == null) {
       value = await this.doLoadAndSet(key);
     }
     return value;
@@ -127,7 +127,7 @@ export abstract class BaseCacheLoader<K, V> {
         throw new Error(`Failed to get value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
       }
     }
-    if (!value) {
+    if (value == null) {
       value = await this.doLoadAndSet(key);
       cached = false;
     }
