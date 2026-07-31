@@ -1,5 +1,5 @@
 import { differenceInMilliseconds, formatDistanceStrict } from 'date-fns';
-import hash from 'object-hash';
+import hash, { NotUndefined } from 'object-hash';
 import { CacheFlow } from './CacheFlow';
 import { LRUCacheWrapper } from './delegate/lru/LRUCacheWrapper';
 import { RedisCache } from './delegate/redis/RedisCache';
@@ -177,7 +177,7 @@ export abstract class BaseCacheLoader<K, V> {
       return key.toString();
     }
     else {
-      return hash(key);
+      return hash(key as NotUndefined);
     }
   }
 
