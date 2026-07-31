@@ -1,12 +1,19 @@
 version: 2.1
 orbs:
-  node: circleci/node@5.2.0
-  codecov: codecov/codecov@3.3.0
+  codecov: codecov/codecov@6.0.0
+
+executors:
+  node:
+    parameters:
+      node-version:
+        type: string
+        default: "24.18.1"
+    docker:
+      - image: cimg/node:<< parameters.node-version >>
 
 jobs:
   release:
-    docker:
-      - image: cimg/node:20.10.0
+    executor: node
     steps:
       - checkout
       - run:
@@ -31,31 +38,35 @@ jobs:
             git checkout -
 
   prepare-dependencies:
-    docker:
-      - image: cimg/node:20.10.0
+    parameters:
+      node-version:
+        type: string
+        default: "24.18.1"
+    executor:
+      name: node
+      node-version: << parameters.node-version >>
     steps:
       - checkout
       - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
-      - restore_cache:
-          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
-      - run:
           name: Install dependencies
-          command: |
-            npm install
+          command: npm ci
       - save_cache:
-          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
+          key: dependency-cache-v2-node<< parameters.node-version >>-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
 
   build:
-    docker:
-      - image: cimg/node:20.10.0
+    parameters:
+      node-version:
+        type: string
+        default: "24.18.1"
+    executor:
+      name: node
+      node-version: << parameters.node-version >>
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
+          key: dependency-cache-v2-node<< parameters.node-version >>-{{ checksum "package-lock.json" }}
       - run:
           name: Build Project
           command: npm run build
@@ -64,45 +75,52 @@ jobs:
           paths:
             - ./*
   test:
-    docker:
-      - image: cimg/node:20.10.0
+    parameters:
+      node-version:
+        type: string
+        default: "24.18.1"
+    executor:
+      name: node
+      node-version: << parameters.node-version >>
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
+          key: dependency-cache-v2-node<< parameters.node-version >>-{{ checksum "package-lock.json" }}
       - run:
           name: Install Redis
           command: |
-            sudo apt update
-            sudo apt install redis-server
-      - run:
-          name: Create Results Directory
-          command: |
-            mkdir -p ./test-results/mocha
+            sudo apt-get update
+            sudo apt-get install -y redis-server
       - run:
           name: Run tests
           command: npm run test
-          timeout: 600
+          no_output_timeout: 10m
       - codecov/upload:
-          file: coverage/*.json
+          files: coverage/coverage.json
+          disable_search: true
+          flags: node<< parameters.node-version >>
       - store_test_results:
           path: test-results
 
   dry-run-docs:
-    docker:
-      - image: cimg/node:20.10.0
+    parameters:
+      node-version:
+        type: string
+        default: "24.18.1"
+    executor:
+      name: node
+      node-version: << parameters.node-version >>
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-v1-{{ .Branch }}-{{ checksum "package.json" }}
+          key: dependency-cache-v2-node<< parameters.node-version >>-{{ checksum "package-lock.json" }}
       - run:
           name: Dry-run doc generation
           command: npm run docs
-          timeout: 60
+          no_output_timeout: 5m
 
   publish:
-    docker:
-      - image: cimg/node:20.10.0
+    executor: node
     steps:
       - attach_workspace:
           at: .
@@ -112,7 +130,7 @@ jobs:
       - run:
           name: Generate JSDoc
           command: |
-            mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+            mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             git config user.name "Release Script"
             git config user.email "contact@abourdin.com"
 
@@ -134,6 +152,10 @@ workflows:
   build-test:
     jobs:
       - prepare-dependencies:
+          name: prepare-dependencies-<< matrix.node-version >>
+          matrix:
+            parameters:
+              node-version: &node-versions ["22.23.2", "24.18.1"]
           filters:
             branches:
               ignore:
@@ -141,13 +163,17 @@ workflows:
                 - docs
       - build:
           requires:
-            - prepare-dependencies
+            - prepare-dependencies-24.18.1
       - test:
+          name: test-<< matrix.node-version >>
+          matrix:
+            parameters:
+              node-version: *node-versions
           requires:
-            - prepare-dependencies
+            - prepare-dependencies-<< matrix.node-version >>
       - dry-run-docs:
           requires:
-            - prepare-dependencies
+            - prepare-dependencies-24.18.1
   build-test-publish:
     jobs:
       - release:
@@ -156,15 +182,24 @@ workflows:
               only:
                 - master
       - prepare-dependencies:
+          name: prepare-dependencies-<< matrix.node-version >>
+          matrix:
+            parameters:
+              node-version: *node-versions
           requires:
             - release
       - build:
           requires:
-            - prepare-dependencies
+            - prepare-dependencies-24.18.1
       - test:
+          name: test-<< matrix.node-version >>
+          matrix:
+            parameters:
+              node-version: *node-versions
           requires:
-            - prepare-dependencies
+            - prepare-dependencies-<< matrix.node-version >>
       - publish:
           requires:
             - build
-            - test
+            - test-22.23.2
+            - test-24.18.1

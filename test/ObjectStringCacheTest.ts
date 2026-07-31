@@ -11,13 +11,13 @@ CacheFlow.configure({
 
 describe('ObjectStringCache Test', () => {
 
-  before(async function () {
+  beforeAll(async function () {
     CacheFlow.configure({
       logger: logger
     });
   });
 
-  after(async function () {
+  afterAll(async function () {
     await CacheFlow.resetAll();
   });
 

@@ -8,7 +8,7 @@ const RedisServer = require('redis-server');
 describe('RedisOfflineBaseCache Test', () => {
   let redisServer: any;
 
-  before(async function () {
+  beforeAll(async function () {
     try {
       redisServer = new RedisServer(3456);
       await redisServer.open();
@@ -26,8 +26,6 @@ describe('RedisOfflineBaseCache Test', () => {
   });
 
   it('test should fallback to LRU cache when redis server is offline', async function () {
-    this.timeout(0);
-
     const cache1 = new SimpleCache();
 
     await sleep(500); // waiting for Cache to connect to Redis

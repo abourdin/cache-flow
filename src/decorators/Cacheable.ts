@@ -26,7 +26,7 @@ export function Cacheable({ cacheId, options: { expirationTime, maxSize } = {}, 
       protected keyToString(key: CacheableKey): string {
         let keyObject: any;
         const argsToKeyFunction = argsToKey || keyToString;
-        if (argsToKey) {
+        if (argsToKeyFunction) {
           keyObject = argsToKeyFunction(...key.args);
         }
         else {

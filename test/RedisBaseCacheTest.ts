@@ -1,5 +1,6 @@
 import { fail } from 'assert';
 import { assert } from 'chai';
+import FalsyValueCache from '../examples/FalsyValueCache';
 import SimpleCache from '../examples/SimpleCache';
 import { CacheFlow } from '../src';
 import { sleep } from './utils/TestUtils';
@@ -11,7 +12,7 @@ const REDIS_SERVER_PORT = 6380
 describe('RedisBaseCache Test', () => {
   let redisServer: any;
 
-  before(async function () {
+  beforeAll(async function () {
     try {
       redisServer = new RedisServer(REDIS_SERVER_PORT);
       await redisServer.open();
@@ -28,15 +29,13 @@ describe('RedisBaseCache Test', () => {
     });
   });
 
-  after(async function () {
+  afterAll(async function () {
     await CacheFlow.resetAll();
 
     await redisServer.close();
   });
 
   it('test should check basic cache functions over a Redis server', async function () {
-    this.timeout(0);
-
     const cache1 = new SimpleCache();
 
     await sleep(500); // waiting for Cache to connect to Redis
@@ -74,6 +73,25 @@ describe('RedisBaseCache Test', () => {
 
     await cache1.reset();
     assert.isFalse(await cache1.exists('foo'));
+  });
+
+  it('test should serve cached falsy values over a Redis server without reloading', async function () {
+    const cache = new FalsyValueCache();
+
+    await sleep(500); // waiting for Cache to connect to Redis
+
+    await cache.reset();
+
+    assert.equal(await cache.get('zero'), 0);
+    assert.equal(await cache.get('zero'), 0);
+
+    assert.equal(await cache.get('emptyString'), '');
+    assert.equal(await cache.get('emptyString'), '');
+
+    assert.equal(await cache.get('false'), false);
+    assert.equal(await cache.get('false'), false);
+
+    assert.equal(cache.loadCount, 3);
   });
 
   it('test should get errors when giving wrong key input over Redis server', async () => {

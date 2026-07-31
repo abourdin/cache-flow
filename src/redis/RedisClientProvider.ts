@@ -1,11 +1,10 @@
-import IORedis from 'ioredis';
 import IoRedis from 'ioredis';
 import { CacheFlow } from '../CacheFlow';
 
 class RedisClientProvider {
-  private ioRedisClient: IoRedis.Redis;
+  private ioRedisClient: IoRedis;
 
-  public getRedisClient(): IORedis.Redis {
+  public getRedisClient(): IoRedis {
     const redisConfiguration = CacheFlow.getRedisConfiguration();
     const logger = CacheFlow.getLogger();
     if (!this.ioRedisClient) {
