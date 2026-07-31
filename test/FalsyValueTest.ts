@@ -67,4 +67,38 @@ describe('Falsy Value Test', () => {
     assert.equal(cache.loadCount, 2);
   });
 
+  it('test should not report a reloaded null as cached', async () => {
+    const cache = new FalsyValueCache();
+    await cache.reset();
+
+    await cache.set('null', null); // an explicitly stored null is still treated as absent when read back
+    const result = await cache.getWithMetadata('null');
+
+    assert.isNull(result.value);
+    assert.isFalse(result.cached);
+    assert.equal(cache.loadCount, 1);
+  });
+
+  it('test should not store a null or undefined loaded value', async () => {
+    const cache = new FalsyValueCache();
+    await cache.reset();
+
+    await cache.get('null');
+    assert.isFalse(await cache.exists('null'));
+
+    await cache.get('unknownKey'); // the loader resolves to undefined for this one
+    assert.isFalse(await cache.exists('unknownKey'));
+  });
+
+  it('test should store a falsy loaded value', async () => {
+    const cache = new FalsyValueCache();
+    await cache.reset();
+
+    await cache.get('zero');
+    assert.isTrue(await cache.exists('zero'));
+
+    await cache.get('false');
+    assert.isTrue(await cache.exists('false'));
+  });
+
 });

@@ -456,9 +456,9 @@ await cache.get('sku-123'); // 0, counted by the warehouse
 await cache.get('sku-123'); // 0, served from the cache — your loader is not called again
 ```
 
-If your loader returns `null` or `undefined` to mean "there is no value for this key", nothing is ever served from the
-cache for it and your loader runs on every call. When those lookups are expensive, return a sentinel value your own code
-recognises instead of `null`, so the negative result gets cached too.
+If your loader returns `null` or `undefined` to mean "there is no value for this key", nothing is stored and nothing is
+ever served from the cache for it, so your loader runs on every call. When those lookups are expensive, return a sentinel
+value your own code recognises instead of `null`, so the negative result gets cached too.
 
 Two related behaviours worth knowing:
 
@@ -509,6 +509,14 @@ _Also see the [code example](https://github.com/abourdin/cache-flow/blob/master/
 ## CacheFlow Reference
 
 [Full reference](https://abourdin.github.io/cache-flow/modules.html)
+
+Alongside `CacheLoader`, `CacheFlow` and `Cacheable`, the package entry point exports the types you need to annotate your
+own code: `CacheOptions`, `CacheDefinition`, `CacheMetadata`, `Metadata`, `CacheFlowConfiguration`,
+`RedisCacheConfiguration`, `LoggerInterface` and `DefaultLogger`.
+
+```typescript
+import { CacheFlowConfiguration, LoggerInterface, Metadata } from 'cache-flow';
+```
 
 ### CacheLoader<K, V> methods
 

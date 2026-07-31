@@ -74,26 +74,10 @@ export abstract class BaseCacheLoader<K, V> {
    * @return {Promise<V>} the cached value
    */
   public async get(key: K, force: boolean = false): Promise<V> {
-    let value;
     if (key === undefined) {
       return undefined;
     }
-    if (!force) {
-      CacheFlow.getLogger().debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
-      try {
-        const keyToString = this.keyToString(key);
-        const cachedValue = await this.delegate.get(keyToString);
-        if (cachedValue !== undefined) {
-          value = this.deserialize(cachedValue);
-        }
-      }
-      catch (error) {
-        throw new Error(`Failed to get value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
-      }
-    }
-    if (value == null) {
-      value = await this.doLoadAndSet(key);
-    }
+    const { value } = await this.doGet(key, force);
     return value;
   }
 
@@ -107,30 +91,11 @@ export abstract class BaseCacheLoader<K, V> {
    * @return {Promise<Metadata<V>>} the cached value
    */
   public async getWithMetadata(key: K, force: boolean = false): Promise<Metadata<V>> {
-    let value;
-    let cached;
-    const startTime = new Date();
     if (key === undefined) {
       return undefined;
     }
-    if (!force) {
-      CacheFlow.getLogger().debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
-      try {
-        const keyToString = this.keyToString(key);
-        const cachedValue = await this.delegate.get(keyToString);
-        if (cachedValue !== undefined) {
-          value = this.deserialize(cachedValue);
-          cached = true;
-        }
-      }
-      catch (error) {
-        throw new Error(`Failed to get value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
-      }
-    }
-    if (value == null) {
-      value = await this.doLoadAndSet(key);
-      cached = false;
-    }
+    const startTime = new Date();
+    const { value, cached } = await this.doGet(key, force);
     const time = differenceInMilliseconds(new Date(), startTime);
     return { value, time, cached };
   }
@@ -242,6 +207,39 @@ export abstract class BaseCacheLoader<K, V> {
     this.cacheDefinition.metadata = { ...this.cacheDefinition.metadata, ...metadata };
   }
 
+  /**
+   * Gets a value for a key, loading it through the cache loader when the cache holds nothing for that key.
+   *
+   * A cached value of null or undefined counts as nothing cached, and triggers a load.
+   *
+   * @param {K} key the cache key
+   * @param {Boolean} force whether to force the cache refresh for that key
+   * @return {Promise<Object>} the value, and whether it came from the cache
+   */
+  private async doGet(key: K, force: boolean): Promise<{ value: V; cached: boolean }> {
+    let value;
+    let cached = false;
+    if (!force) {
+      CacheFlow.getLogger().debug(`Getting value for key '${this.keyToString(key)}' from cache '${this.getCacheId()}' (force=${force})`);
+      try {
+        const keyToString = this.keyToString(key);
+        const cachedValue = await this.delegate.get(keyToString);
+        if (cachedValue !== undefined) {
+          value = this.deserialize(cachedValue);
+          cached = true;
+        }
+      }
+      catch (error) {
+        throw new Error(`Failed to get value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
+      }
+    }
+    if (value == null) {
+      value = await this.doLoadAndSet(key);
+      cached = false;
+    }
+    return { value, cached };
+  }
+
   private async doLoadAndSet(key: K) {
     if (this.load) {
       CacheFlow.getLogger().debug(`Loading value for key '${this.keyToString(key)}' into cache '${this.getCacheId()}'`);
@@ -253,7 +251,7 @@ export abstract class BaseCacheLoader<K, V> {
         CacheFlow.getLogger().error(`Failed to load value from cache '${this.getCacheId()}' for key '${this.keyToString(key)}': ${error.message}`);
         throw error;
       }
-      if (key !== undefined && value !== undefined) {
+      if (key !== undefined && value != null) {
         try {
           await this.set(key, value);
         }
@@ -288,7 +286,7 @@ export interface CacheOptions {
   maxSize?: number;
 }
 
-interface Metadata<V> {
+export interface Metadata<V> {
   value: V;
   cached: boolean;
   time: number;
@@ -303,7 +301,7 @@ export interface CacheDefinition {
   metadata: CacheMetadata;
 }
 
-interface CacheMetadata {
+export interface CacheMetadata {
   type?: string;
   class?: string;
 }
