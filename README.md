@@ -33,6 +33,9 @@ the caching features of this library into a single line of code, completely tran
 
 ## Installation
 
+**Requirements:** Node.js 22 or later. The library is tested against Node.js 22 (Jod) and 24 (Krypton),
+the currently supported LTS release lines.
+
 1. Install the library
 
 ```sh

@@ -18,6 +18,9 @@
   "license": "ISC",
   "main": "index.js",
   "types": "index.d.ts",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "clean": "rimraf build coverage test-results docs",
     "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
@@ -37,7 +40,7 @@
     "@types/chai": "^4.2.14",
     "@types/ioredis": "^4.26.6",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^16.4.6",
+    "@types/node": "^22.20.1",
     "@types/object-hash": "^2.1.1",
     "@types/redis": "^2.8.28",
     "chai": "^4.3.4",
