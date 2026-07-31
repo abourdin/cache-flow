@@ -26,15 +26,29 @@ jobs:
             git config user.name "Release Script"
             git config user.email "contact@abourdin.com"
 
-            # tag release version
-            git tag "release-$RELEASE_VERSION"
-            git push origin master --tags
+            git fetch --tags origin
 
-            # prepare development branch
-            git fetch
+            # tag release version, unless an earlier attempt already did.
+            # Only the tag is pushed: master is already at the commit that
+            # triggered this pipeline, so pushing the branch is a no-op
+            # against a branch that requires pull requests.
+            if git rev-parse -q --verify "refs/tags/release-$RELEASE_VERSION" > /dev/null; then
+              echo "Tag release-$RELEASE_VERSION already exists, skipping"
+            else
+              git tag "release-$RELEASE_VERSION"
+              git push origin "refs/tags/release-$RELEASE_VERSION"
+            fi
+
+            # prepare development branch, unless an earlier attempt already
+            # moved it on. Bumping twice would skip a minor version.
             git checkout develop
-            npm version minor -m "Prepared branch for next development iteration"
-            git push origin develop
+            DEVELOP_VERSION=$(node -p -e "require('./package.json').version")
+            if [ "$DEVELOP_VERSION" = "$RELEASE_VERSION" ]; then
+              npm version minor -m "Prepared branch for next development iteration"
+              git push origin develop
+            else
+              echo "develop is at $DEVELOP_VERSION, not $RELEASE_VERSION, skipping bump"
+            fi
             git checkout -
 
   prepare-dependencies:
