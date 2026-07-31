@@ -11,7 +11,7 @@ export class RedisCache {
   private readonly cacheId: string;
   private readonly maxAge: number;
   private readonly logger: LoggerInterface;
-  private redisClient: IORedis.Redis;
+  private redisClient: IORedis;
 
   /**
    * Constructor.
