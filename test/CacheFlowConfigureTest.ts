@@ -4,7 +4,7 @@ import { logger } from './utils/TestUtils';
 
 describe('CacheFlow Configure Test', () => {
 
-  after(async function () {
+  afterAll(async function () {
     // leave no Redis configuration behind for the following test files
     CacheFlow.configure({
       redis: undefined,

@@ -12,7 +12,7 @@ const REDIS_SERVER_PORT = 6380
 describe('RedisBaseCache Test', () => {
   let redisServer: any;
 
-  before(async function () {
+  beforeAll(async function () {
     try {
       redisServer = new RedisServer(REDIS_SERVER_PORT);
       await redisServer.open();
@@ -29,15 +29,13 @@ describe('RedisBaseCache Test', () => {
     });
   });
 
-  after(async function () {
+  afterAll(async function () {
     await CacheFlow.resetAll();
 
     await redisServer.close();
   });
 
   it('test should check basic cache functions over a Redis server', async function () {
-    this.timeout(0);
-
     const cache1 = new SimpleCache();
 
     await sleep(500); // waiting for Cache to connect to Redis
@@ -78,8 +76,6 @@ describe('RedisBaseCache Test', () => {
   });
 
   it('test should serve cached falsy values over a Redis server without reloading', async function () {
-    this.timeout(0);
-
     const cache = new FalsyValueCache();
 
     await sleep(500); // waiting for Cache to connect to Redis

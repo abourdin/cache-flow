@@ -5,13 +5,13 @@ import { logger } from './utils/TestUtils';
 
 describe('Falsy Value Test', () => {
 
-  before(async function () {
+  beforeAll(async function () {
     CacheFlow.configure({
       logger: logger
     });
   });
 
-  after(async function () {
+  afterAll(async function () {
     await CacheFlow.resetAll();
   });
 
